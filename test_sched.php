@@ -20,8 +20,6 @@
 	$sched[4] = '000001111100000111110000011111000001111100000000';
 	$sched[5] = '111110000011111000001111100000111110000011111111';
 	$sched[6] = '000001111100000111110000011111000001111111111111';
-	//using a loop, convert these from binary string to decimal
-	//  for insertion into database
 	
 	
 	$user_name = 'frankie';
