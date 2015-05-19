@@ -1,0 +1,60 @@
+/*
+AUTHOR:	Benjamin R. Olson
+DATE:	March 8, 2015
+COURSE: CS 290 - Web Development, Oregon State University
+*/
+
+
+
+body {
+	font:Georgia;
+	font-size:1.0em;
+}
+
+.box {
+	background-color:#B8DBFF;
+	border: 1px solid #FFF;
+}
+
+.container{
+	margin: 12px 12px 12px 12px;
+    padding: 3px 3px 3px 3px;
+	border: 3px solid #933;
+}
+
+.centered {
+	margin-left:auto;
+	margin-right:auto;
+	width:90%;
+	text-align:center;
+}
+
+.header {
+	background_color:#111;
+}
+
+.horizontal {
+	float:left;
+}
+
+
+.button {
+	background-color:#333;
+	color:#FFF;
+	width:100px;
+}
+
+
+#map {
+	display:block;
+	margin-top:10px;
+	height:400px;
+	width:100%;
+	background-color:#000;
+}
+
+#newEntryErrors {
+	color:red;
+}
+
+
