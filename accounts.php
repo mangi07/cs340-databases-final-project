@@ -7,9 +7,21 @@ DATE:	March 8, 2015
 COURSE: CS 290 - Web Development, Oregon State University
 */
 
+//add code here--------------------------------------------
+// How to call create_user() from html form submission?? check some form value and if equal,
+//   then call reate_user()?
+
+// !! or maybe just put the form here (no post variables needed) and then direct to main.php
+//    upon success !!
+
+// DEBUG
+echo $_POST["username"];
+die();
+//done adding-----------------------------------------------
+
 
 //check if user is already logged in
-if(isset($_SESSION['user_name'])){
+if(isset($_SESSION['user'])){
 	echo "Note: You are already logged in.<br>";
 	echo "<button onclick='window.location.href = \"main.php\"'>User Page</button>";
 	die();
@@ -74,10 +86,27 @@ function check_fields($user, $pass){
 //if the username exists and the password is correct,
 //  this will allow user to access main.php
 function db_login($user, $pass, $mysqli){
-	if (!($stmt = $mysqli->prepare("SELECT password FROM cs340final_project.users WHERE user_name = ?"))) {
-		echo "Error: Failed to check the database for this user.<br>";
-		return;}
-	if (!$stmt->bind_param("s", $user)) {
+	//MODIFY THIS SELECT TO MAKE SURE IT'S THE CORRECT TYPE OF user
+	//  so a user doesn't accidentally fill out the wrong section
+	//  and get sent to the wrong type of user interface.
+	//  Then, check the create user stuff - it actually worked - why?
+	
+	//if student
+	if ($_POST["user_type"] == "student") {
+		if (!($stmt = $mysqli->prepare("SELECT password FROM cs340final_project.users as u, cs340final_project.student as s WHERE u.user_name = ? and s.user_name = ?"))) {
+			echo "Error: Failed to check the database for this user.<br>";
+			return;
+		}
+	}
+	//if tutor, mirrored/similar code...
+	if ($_POST["user_type"] == "tutor") {
+		if (!($stmt = $mysqli->prepare("SELECT password FROM cs340final_project.users as u, cs340final_project.tutor as t WHERE u.user_name = ? and t.user_name = ?"))) {
+			echo "Error: Failed to check the database for this user.<br>";
+			return;
+		}
+	}
+	
+	if (!$stmt->bind_param("ss", $user, $user)) {
 		echo "Failed to check the database for this user.<br>";
 		return;}
 	if (!$stmt->execute()) {

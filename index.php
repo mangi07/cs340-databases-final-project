@@ -7,6 +7,13 @@ DATE:	March 8, 2015
 COURSE: CS 290 - Web Development, Oregon State University
 */
 
+//check for login
+if (isset($_SESSION['user'])){
+	echo "Note: You are already logged in.<br>";
+	echo "<button onclick='window.location.href = \"main.php\"'>User Page</button>";
+	die();
+}
+
 
 ?>
 
@@ -27,13 +34,26 @@ COURSE: CS 290 - Web Development, Oregon State University
 		<h1>ESL Tutoring Portal</h1>
 		<h3>Created By Ben R. Olson</h3>
 
-		<h2>STUDENTS HERE:</h2>
+		<h2>STUDENTS LOGIN HERE:</h2>
 		<p>Login or Create an Account</p>
 		<p>Username: <input id="student_userfield" type="text"></p>
 		<p>Password: <input id="student_passfield" type="password"></p>
 		<button id="student_login" class="button">Login</button>
-		<!-- add stuff here for form submission of all post variables
-		required to insert a new user into database: see account.php line 150 onward-->
+		
+		<!-- FORM: CREATE STUDENT: ACTUALL, PUT THIS STRAIGHT IN main.php? -->
+		<h2>CREATE NEW STUDENT ACCOUNT HERE:</h2>
+		<form method="post" action="accounts.php">
+			<fieldset>
+			<legend>New Student Information</legend>
+				<p>Planet Name: <input type="text" name="PName" /></p>
+				<p>Planet Population: <input type="text" name="PPopulation" /></p>
+				<p>Official Language: <input type="text" name="PLanguage" /></p>
+				<input type="hidden" name="create_user" value="true" />
+			</fieldset>
+			<input type="submit" name="createStudent" value="Create Student User" class="button"/>
+		</form>
+		
+		
 		<button id="create_student" class="button">Create Student User</button>
 		<p id="student_errors" style="color:red;"></p>
 		

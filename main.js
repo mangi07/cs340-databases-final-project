@@ -9,6 +9,7 @@ Date api used to select dates:
   http://www.eyecon.ro/datepicker/#implement
 */
 
+/*MAY NOT USE MOST OF THIS FILE !!*/
 
 //VARIABLES
 var map;
