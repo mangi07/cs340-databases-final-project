@@ -4,20 +4,9 @@ session_start();
 /*
 AUTHOR:	Benjamin R. Olson
 DATE:	March 8, 2015
-COURSE: CS 290 - Web Development, Oregon State University
+COURSE: CS 340 - Introduction to Databases, Oregon State University
 */
 
-//add code here--------------------------------------------
-// How to call create_user() from html form submission?? check some form value and if equal,
-//   then call reate_user()?
-
-// !! or maybe just put the form here (no post variables needed) and then direct to main.php
-//    upon success !!
-
-// DEBUG
-echo $_POST["username"];
-die();
-//done adding-----------------------------------------------
 
 
 //check if user is already logged in
@@ -56,8 +45,23 @@ if(isset($_POST["username"]) &&
 	echo "<span style='color:red;'>
 		Sorry...Unknown error from php!
 		</span>";
+	die();
 }
 
+/*  check these fields: in check_fields()
+$_POST["username"],
+$_POST["password"],
+	$_POST["fname"],
+	$_POST["lname"],
+	$_POST["year_born"],
+	$_POST["gender"],
+	$_POST["skype_id"],
+	$_POST["start_date"],
+	$_POST["end_date"],
+	$_POST["max_rate"],
+	$_POST["first_lang"],
+	$_POST["second_lang"]
+*/
 
 //returns true if username and password pass the checks, else returns false
 function check_fields($user, $pass){
@@ -79,6 +83,26 @@ function check_fields($user, $pass){
 		echo "Error: Password cannot contain any spaces.<br>";
 		$checks_passed = false;
 	}
+	//if it's create account, then check the additional post variables
+	//  using same kind of logic
+	if ($_POST["login_attempt"] == "false"){
+		if ($_POST["fname"]=="") {echo "Error: First Name is required.<br>"; $checks_passed = false;}
+		if ($_POST["lname"]=="") {echo "Error: Last Name is required.<br>"; $checks_passed = false;}
+		if ($_POST["year_born"]=="") {echo "Error: Year Born is required.<br>"; $checks_passed = false;}
+		if ($_POST["gender"]=="") {echo "Error: Gender is required.<br>"; $checks_passed = false;}
+		if ($_POST["skype_id"]=="") {echo "Error: Skype ID is required.<br>"; $checks_passed = false;}
+		if ($_POST["start_date"]=="") {echo "Error: Start Date is required.<br>"; $checks_passed = false;}
+		if ($_POST["end_date"]=="") {echo "Error: End Date is required.<br>"; $checks_passed = false;}
+		if ($_POST["user_type"]=="student") {
+			if ($_POST["max_rate"]=="") {echo "Error: Max Rate is required.<br>"; $checks_passed = false;}
+		} else if ($_POST["user_type"]=="tutor") {
+			if ($_POST["min_rate"]=="") {echo "Error: Min Rate is required.<br>"; $checks_passed = false;}
+		}
+		if ($_POST["first_lang"]=="") {echo "Error: First Language is required.<br>"; $checks_passed = false;}
+		if ($_POST["second_lang"]=="") {echo "Error: Second Language is required.<br>"; $checks_passed = false;}
+	}
+	//additional error checking on some fields using regular expressions...add it
+	
 	
 	return $checks_passed;
 }
@@ -137,38 +161,20 @@ function db_login($user, $pass, $mysqli){
 	}
 }
 
+
 //if the username already exists, this should fail,
 //  else a new username and password will be entered as a row in the db table,
 //  and then the new user will have access to main.php through a session variable
 function create_user($user, $pass, $mysqli, $user_type){
-	
-	
-/*
-	-- inserting into student table example:
---   First try inserting username/password pair into users table:
-insert into users(user_name, password) values ('studentUser1', 'studentPassword1');
--- If that returns success, then...
-insert into student(user_name, fname, lname, year_born, gender, skype_id, start_date, end_date, max_rate, first_lang, second_lang) values (
-'studentUser1', 'John', 'Doe', 1980, 'm', 'jd', '2015-01-01', '2015-02-01', 20, 'English', 'Korean');
--- Else let the user know the username and password could not be entered (maybe username was not unique).
-
--- inserting into tutor table example:
---   First try inserting username/password pair into users table:
-insert into users(user_name, password) values ('tutorUser1', 'tutorPassword1');
--- If that returns success, then...
-insert into tutor(user_name, fname, lname, year_born, gender, skype_id, start_date, end_date, min_rate, first_lang, second_lang) values (
-'tutorUser1', 'Susie', 'Q', 1970, 'f', 'sq', '2015-01-01', '2015-02-01', 10, 'Korean', 'English');
--- Else let the user know the username and password could not be entered (maybe username was not unique).
-*/
 
 	if (!($stmt = $mysqli->prepare("insert into cs340final_project.users(user_name, password) values (?, ?);"))) {
-		echo "Error: This user may already exist.<br>";	
+		echo "Error: Failed to prepare to add user.<br>";	
 		return;
 	} else if (!$stmt->bind_param("ss", $user, $pass)) {
-		echo "Failed to add this user to the database.<br>";	
+		echo "Error: Failed to prepare to add user.<br>";	
 		return;
 	} else if (!$stmt->execute()) {
-		echo "Failed to add this user to the database.  The user may already exist.<br>";
+		echo "Error: Failed to add this user to the database.  The user may already exist.<br>";
 		return;
 	} else if ($user_type == "student") {
 		if (!($stmt = $mysqli->prepare("insert into cs340final_project.student(user_name, fname, lname, year_born, gender, skype_id, start_date, end_date, max_rate, first_lang, second_lang) values (?,?,?,?,?,?,?,?,?,?,?);"))) {

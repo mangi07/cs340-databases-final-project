@@ -47,32 +47,13 @@ if (!isset($_SESSION['user'])){
 
 
 	<!-- Logout functionality provided in main.js (160-166) is attached to this button: -->
-	<div onclick="window.location.href = 'logout.php'" class="button">Log Out</div>
+	<!--<div onclick="window.location.href = 'logout.php'" class="button">Log Out</div>-->
+	<div class="button"><a href="logout.php">Log Out</a></div>
 	
 	<!-- To modifiy and view data: -->
 	<div class="horizontal">
 	
-	<!-- To enter all data for a new location to be placed on the user's map -->
-	<div id="newEntry" class="container">
-		<h2 title="Add a location if none exist.">Add Or Update Your Location</h2>
 		
-		<h3 class="box">Location Name: <input id="loc_name" type="text"></h3>
-		
-		<!-- To choose the range of days the user was at a location: -->
-		<div id="dateContainer" class="box">
-			<h3 title="When were you there?">Timeframe</h3>
-			<div id="date">
-				<div class="horizontal">
-					<h3>Start Date</h3>
-					<div id="startDate"></div>
-				</div>
-				
-				<div class="horizontal">
-					<h3>End Date</h3>
-					<div id="endDate"></div>
-				</div>
-			</div>
-		</div>
 		
 		<!-- To enter the coordinates of a new location entry: -->
 		<div class="box">

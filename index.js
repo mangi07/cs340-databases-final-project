@@ -5,17 +5,40 @@ COURSE: CS 290 - Web Development, Oregon State University
 */
 
 
+/*jquery must be included before this works!*/
+
 window.onload = function (){
 
-	$('#student_login').on('click', function(){login(true, "student");});
-	$('#create_student').on('click', function(){login(false, "student");});
+	$('.student_login').on('click', function(){login("student");});
+	$('.tutor_login').on('click', function(){login("tutor");});
 	
-	$('#tutor_login').on('click', function(){login(true, "tutor");});
-	$('#create_tutor').on('click', function(){login(false, "tutor");});
-			
+	$('#create_user').on('click', function(){create_user();});
+
 }
 
-function login(login_attempt, user_type){
+function create_user(){
+
+	//code modified from http://api.jquery.com/jquery.post/
+	$( "#new_user_form" ).submit(function( event ) {
+		// Stop form from submitting normally
+		event.preventDefault();
+	});
+	
+	$.post( "accounts.php", $( "#new_user_form" ).serialize() )
+		.done(function( data ) {
+			if ( data.trim() == "success" ){
+				//attempt to direct to main.php
+				window.location.replace("main.php");
+			} else {
+				$('#errors').html(data);
+			}
+		})
+		.fail(function() {
+			$('#errors').html("Failed to communicate with the server.");
+		});
+}
+
+function login(user_type){
 	
 	if (user_type == "student"){ 
 		username = $("#student_userfield").val();
@@ -25,7 +48,7 @@ function login(login_attempt, user_type){
 		password = $("#tutor_passfield").val();
 	}
 	
-	$.post( "accounts.php", { login_attempt:login_attempt, username:username, password:password, user_type:user_type })
+	$.post( "accounts.php", { login_attempt:"true", username:username, password:password, user_type:user_type })
 		.done(function( data ) {
 			if ( data.trim() == "success" ){
 				//attempt to direct to main.php
