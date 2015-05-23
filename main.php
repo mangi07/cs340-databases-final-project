@@ -3,8 +3,8 @@ session_start();
 
 /*
 AUTHOR:	Benjamin R. Olson
-DATE:	March 8, 2015
-COURSE: CS 290 - Web Development, Oregon State University
+DATE:	May 23, 2015
+COURSE: CS 340 - Web Development, Oregon State University
 */
 
 
@@ -30,8 +30,6 @@ if (!isset($_SESSION['user'])){
 	<!--jQuery link needed BEFORE trying to load calendar plugin based on jQuery!!-->
 	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
 	
-	<!--link to main JavaScript-->
-	<script type="text/javascript" src="main.js"></script>
 </head>
 <body class="centered">
 
@@ -47,8 +45,8 @@ if (!isset($_SESSION['user'])){
 
 
 	<!-- Logout functionality provided in main.js (160-166) is attached to this button: -->
-	<!--<div onclick="window.location.href = 'logout.php'" class="button">Log Out</div>-->
-	<div class="button"><a href="logout.php">Log Out</a></div>
+	<div onclick="window.location.href = 'logout.php'" class="button">Log Out</div>
+	<!--<div class="button"><a href="logout.php">Log Out</a></div>-->
 	
 	<!-- To modifiy and view data: -->
 	<div class="horizontal">
@@ -57,42 +55,20 @@ if (!isset($_SESSION['user'])){
 		
 		<!-- To enter the coordinates of a new location entry: -->
 		<div class="box">
-			<h3 title="Click on the map to get your coordinates.">Location</h3>
-			<p id="lat">Latitude: not yet selected.</p>
-			<p id="lng">Longitude: not yet selected.</p>
 			
-			<!-- using $.post() -->
-			<button class="ajax button">Submit</button>
-			<div id="newEntryErrors"></div>
 		</div>
 		
-		<!-- change this to php that gets session variable to reflect whether user is visible (cf accounts.php line 158 -->
+		
 		<div class="box">
 			
-			<?php if (isset($_SESSION['visible'])  && $_SESSION['visible'] == 1): ?>
-				<p id="privacy_notice">Your location is visible to other users.</p>
-				<button id="visibility" value="visible" class="button">Hide My Location</button>
-			<?php else: ?>
-				<p id="privacy_notice">Your location is hidden.</p>
-				<button id="visibility" value="hidden" class="button">Show My Location</button>
-			<?php endif; ?>
 			
-			<p id="vis_errors" style="color:red;"><p>
 		</div>
 		
 	</div>
 	
 	<!-- To filter and see other user's locations -->
-	<div id="viewOthers" class="box container">
-		<h3 title="You can see the location of others when you select them from the list below.">View Other Users</h3>
-		<p>Other users available to display:</p>
+	<div class="box container">
 		
-		<button class="allUsers button">Get All Users</button>
-		
-		<!-- Checkboxes go here -->
-		<div id="user_checkboxes"></div>
-		
-		<div id="allUsersErrors"></div>
 	</div>
 	
 	<!-- To delete the current user's account -->
