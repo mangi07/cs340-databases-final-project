@@ -17,7 +17,7 @@ insert into tutor(user_name, fname, lname, year_born, gender, skype_id, start_da
 'tutorUser1', 'Susie', 'Q', 1970, 'f', 'sq', '2015-01-01', '2015-02-01', 10, 'Korean', 'English');
 -- Else let the user know the username and password could not be entered (maybe username was not unique).
 
-
+-- ADD THE FOLLOWING QUERIES TO main.php SOMEHOW !!
 -- Create a query for a student requesting to be matched with a certain tutor:
 insert into student_wants_tutor(sid, tid) values(
 (select id from student where user_name = 'studentUser1'),
@@ -145,11 +145,11 @@ on 1;
 -- create query to insert a session
 insert into sessions(sid, tid, start_time, end_time, rate)
 values (
-  (select id from student where user_name = 'studentUser1'),
+  (select id from student where user_name = 'studentUser1_changed'),
   (select id from tutor where user_name = 'tutorUser1'),
   '2015-05-17 21:42:45', now(),
 ( select rate from student_tutor where (sid, tid) = (
-  (select id from student where user_name = 'studentUser1'),
+  (select id from student where user_name = 'studentUser1_changed'),
   (select id from tutor where user_name = 'tutorUser1')
 ) )
 );
@@ -158,9 +158,10 @@ values (
 -- Create query to determine the total amount earned by a tutor.
 -- (note: I'm not keeping track of payments! 
 -- Just assuming tutor has been paid in full for all sessions.)
-select sum(payments) from
+-- CORRECTION TO BE MADE IN sum(payments) -should be column, like sum(payments.<columnName>)
+select sum(payments.total) as total from
 ((
-  select (time_to_sec(timediff(end_time, start_time))/3600)*rate
+  select ((time_to_sec(timediff(end_time, start_time))/3600)*rate) as total
   from sessions
   where tid = (select id from tutor where user_name = 'tutorUser1')
   
@@ -169,7 +170,7 @@ select sum(payments) from
 
 
 -- Delete a user (whether that be a student or a tutor):
-delete from users where user_name = 'studentUser1_changed';
+-- delete from users where user_name = 'studentUser1_changed';
 -- In this example, we're deleting a student.
 
 -- *********!!
@@ -177,7 +178,10 @@ delete from users where user_name = 'studentUser1_changed';
 -- cascade properly to tables tutor, student, and student_tutor!! 
 -- *********!!
 
-
+-- You need to make sure the subqueries used with (=) to add, delete or update data return only one value. You can do this by defining the related
+-- attribute as unique when you create the related table. For example for a query like below we need to make sure that -- first_name is unique in table
+-- People
+-- UPDATE Table1 SET p_id = (SELECT id FROM people WHERE first_name = 'Sara')
 
 
 

@@ -1,21 +1,20 @@
 
+
 DROP TABLE IF EXISTS student_tutor;
 DROP TABLE IF EXISTS student_wants_tutor;
 DROP TABLE IF EXISTS student_availability;
 DROP TABLE IF EXISTS tutor_availability;
+DROP TABLE IF EXISTS availability;
+DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS student;
 DROP TABLE IF EXISTS tutor;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS availability;
-DROP TABLE IF EXISTS sessions;
-
 
 -- Table to enforce uniqueness of (user_name, password) pairs across tutor and student tables
 CREATE TABLE users(
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	user_name VARCHAR(255) UNIQUE KEY,
-	password VARCHAR(255) NOT NULL,
-	UNIQUE KEY (user_name, password)
+	password VARCHAR(255) NOT NULL
 ) engine = InnoDB;
 -- When a user wants to delete his/her account, just delete from users and corresponding row in tutor or student
 --   should also be automatically deleted if the cascade is set up properly - write it and test it.
@@ -23,7 +22,7 @@ CREATE TABLE users(
 
 CREATE TABLE student(
 	id INT PRIMARY KEY AUTO_INCREMENT,
-	user_name VARCHAR(255) NOT NULL,
+	user_name VARCHAR(255) UNIQUE NOT NULL,
 	fname VARCHAR(255) NOT NULL,
 	lname VARCHAR(255) NOT NULL,
 	year_born YEAR NOT NULL,
@@ -42,7 +41,7 @@ CREATE TABLE student(
 
 CREATE TABLE tutor(
 	id INT PRIMARY KEY AUTO_INCREMENT,
-	user_name VARCHAR(255) NOT NULL,
+	user_name VARCHAR(255) UNIQUE NOT NULL,
 	fname VARCHAR(255) NOT NULL,
 	lname VARCHAR(255) NOT NULL,
 	year_born YEAR NOT NULL,
