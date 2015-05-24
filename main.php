@@ -161,7 +161,7 @@ echo "
 	
 	
 	
-<!-- FILTER OTHER USERS -->
+<!-- FILTER TUTORS -->
 
 		
 	
@@ -190,16 +190,13 @@ echo "
 				$pairs[$name] = $_POST[$name];
 		}
 
-		//debug
-		var_dump($pairs);
-		
 		update_table($pairs, $_SESSION["user_type"]);
 		
 		return;
 	}
 	
-	//instructor's response on 5/10/15
-	// to question posed on 5/9/15
+	//the following two functions modified from instructor's response on 5/10/15
+	// to question posed on 5/9/15 on piazza.com
 	// regarding variable column updates
 
 	function update_table($arr, $table_name) {
@@ -214,16 +211,14 @@ echo "
 		}
 
 		$sql = sprintf("UPDATE %s SET %s %s", $table_name, implode(", ", $fragments), " WHERE user_name = ?");
-		//debug
-		var_dump($sql);
-		
 		
 		if (!($stmt = $mysqli->prepare($sql))) {
 			echo "Prepare failed" . $stmt->errno . " " . $stmt->error;
 		} else {
-			$params = array_merge(array(str_repeat('s', count($params))), array_values($params));
+			$params = array_merge(array(str_repeat('s', count($params) + 1)), array_values($params), array($_SESSION["user"]));
+			
 			call_user_func_array(array(&$stmt, 'bind_param'), refValues($params));
-			$stmt->bind_param("s", $_SESSION["user_type"]);
+
 			$stmt->execute();
 			$stmt->close();
 		}
