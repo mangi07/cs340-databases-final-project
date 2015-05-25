@@ -52,7 +52,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 mode: update_user, filter_tutors, set_schedule, request_tutor, accept_student 
 
 note: add financial info (and sessions), display schedule, and tutor/student connections relevant to user 
-note: insert into availability all 0's when creating a new user
+note: insert into availability all 0's when creating a new user, use php to display schedule as styled table
 note: add manager page to view how many students each tutor has, sessions, and financial info
 -->
 
@@ -75,6 +75,7 @@ note: add manager page to view how many students each tutor has, sessions, and f
 
 
 <!-- VIEW PERSONAL DATA -->
+<h2>Personal Data</h2>
 	<!-- Code in this div modified from filter.php example given in Module 8, CS 340, OSU -->
 	<div class="box container">
 
@@ -162,8 +163,25 @@ echo "
 	
 	
 <!-- FILTER TUTORS -->
-
-		
+<h2>Filter Tutors</h2>
+<?php if ($_SESSION["user_type"] == "student"): ?>
+	<!-- Form submitted via ajax method create_user() in index.js: -->
+	<form id="filter_tutor" action="filter_tutor.php" method="post"> 
+		<p>Tutors born on or after year: <input name="year_born" type="number" min="1920" max="2010"></p>
+		<p>Gender: 
+			<select name="gender">
+				<option value="m">Male</option>
+				<option value="f">Female</option>
+			</select>
+		</p>
+		<p>Start Date (format: yyyy-mm-dd): <input name="start_date" type="text"></p>
+		<p>End Date (format: yyyy-mm-dd): <input name="end_date" type="text"></p>
+		<p>Min Rate Per Hour: <input name="min_rate" type="number" min="10" max="30"></p>
+		<p>Tutor's First Language: <input name="first_lang" type="text"></p>
+		<p>Tutor's Second Language: <input name="second_lang" type="text"></p>
+		<p>Filter Tutors: <input type="submit" class="button" /></p>
+	</form>
+<?php endif; ?>	
 	
 	
 	

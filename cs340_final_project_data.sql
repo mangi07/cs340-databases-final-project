@@ -23,6 +23,7 @@ insert into student_wants_tutor(sid, tid) values(
 (select id from student where user_name = 'studentUser1'),
 (select id from tutor where user_name = 'tutorUser1')
 );
+-- edit subquery: select id from tutor where id = __
 
 
 -- Find all students that want to be tutored by a given tutor:

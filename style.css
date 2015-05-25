@@ -11,6 +11,16 @@ body {
 	font-size:1.0em;
 }
 
+table, th, td{
+	border: 1px solid black;
+	
+}
+
+th, td {
+    padding: 5px;
+    text-align: centered;    
+}
+
 .box {
 	background-color:#B8DBFF;
 	border: 1px solid #FFF;
@@ -44,16 +54,14 @@ body {
 	width:100px;
 }
 
+/*adapted from http://stackoverflow.com/questions/7291873/disable-color-change-of-anchor-tag-when-visited*/
+a {color:#FFF;background-color:#333;}      /* unvisited link */
+a:visited {color:#FFF;}  /* visited link */
+a:hover {color:#FFF;}  /* mouse over link */
+a:active {color:#FFF;}  /* selected link */
 
-#map {
-	display:block;
-	margin-top:10px;
-	height:400px;
-	width:100%;
-	background-color:#000;
-}
 
-#newEntryErrors {
+.errors {
 	color:red;
 }
 
