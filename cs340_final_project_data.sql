@@ -27,14 +27,15 @@ insert into student_wants_tutor(sid, tid) values(
 
 
 -- Find all students that want to be tutored by a given tutor:
-select student.user_name from student inner join
-student_wants_tutor
-on student.id = student_wants_tutor.sid inner join
-tutor
-on student_wants_tutor.tid = tutor.id
-where tutor.user_name = 'tutorUser1'
-order by student.user_name;
-
+select s.fname, s.lname, s.year_born, s.gender, 
+s.start_date, s.end_date, s.max_rate, s. first_lang, s.second_lang 
+from cs340final_project.student as s inner join	
+cs340final_project.student_wants_tutor as swt
+on s.id = swt.sid inner join
+cs340final_project.tutor as t
+on swt.tid = t.id
+where t.user_name = 'tutorUser1'
+order by s.user_name
 
 -- example of adding a connection between a student and a tutor in student_tutor table:
 insert into student_tutor(sid, tid, rate, start_date) values (

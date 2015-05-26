@@ -63,12 +63,79 @@ note: add manager page to view how many students each tutor has, sessions, and f
 		//update user function
 		update_user();
 	}
-	//similar pattern for mode checking and function calls follow...
-	
-	
 ?>
 
+<!-- View pending requests, relationships, and sessions or link to other php scripts with these things -->
+<?php
+	if($_SESSION['user_type']=="tutor"){
+		//get and view pending requests from students...
+		include("db.php");
+		if(!($stmt = $mysqli->prepare("
+			select s.fname, s.lname, s.year_born, s.gender, 
+			s.start_date, s.end_date, s.max_rate, 
+			s. first_lang, s.second_lang, s.id 
+			from cs340final_project.student as s inner join	
+			cs340final_project.student_wants_tutor as swt
+			on s.id = swt.sid inner join
+			cs340final_project.tutor as t
+			on swt.tid = t.id
+			where t.user_name = ?
+			order by s.user_name
+		"))){
+			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		if(!($stmt->bind_param("s",$_SESSION['user']))){
+			echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		if(!$stmt->execute()){
+			echo "Execute failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		
+		if(!$stmt->bind_result($fname, $lname, $year_born, $gender, $start_date, $end_date, $max_rate, $first_lang, $second_lang, $id)){
+			echo "Bind paramaters failed: " . $stmt->errno . " " . $stmt->error;
+		};
+			
+		//need to fetch each row here and accumulate into an array
+		$tutors = array();
+		while ($stmt->fetch()){
+			$tutors[] = array("fname" => $fname, "lname" => $lname, "year_born" => $year_born, "gender" => $gender, "start_date" => $start_date, "end_date" => $end_date, "max_rate" => $max_rate, "first_lang" => $first_lang, "second_lang" => $second_lang, "id" => $id);
+		}
+		echo "<table><tr><th>First Name<th>Last Name<th>Year Born<th>Gender
+			<th>Start Date<th>End Date<th>Max Rate<th>First Language<th>Second Language</tr>";
+		
+		foreach($tutors as $key => $val){
+			echo "<tr>";
+			
+			//counter logic from http://stackoverflow.com/questions/1070244/how-to-determine-the-first-and-last-iteration-in-a-foreach-loop
+			$i = 0;
+			$len = count($val);
+			foreach ($val as $k => $v) {
+				if ($i < $len-1) {
+					echo "<td>" . $v;
+				}
+				$i++;
+			}
+			
+		}
+		echo "</table>";
+		
+	}
+?>
 
+	<!-- accept students here -->
+	<form method="post" action="accept.php">
+		<select name="student_id">
+		<?php
+			foreach ($tutors as $key => $val){
+				$student_id = $val['id'];
+				$student_name = $val['fname'] . " " . $val['lname'];
+				echo "<option value='$student_id'>$student_name</option>\n";
+			}
+		?>
+		</select>
+		<input type='submit'></input>
+	</form>
+	
 
 
 
