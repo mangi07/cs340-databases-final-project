@@ -34,9 +34,7 @@ if (!isset($_SESSION['user']) &&
 	
 	<link rel="stylesheet" type="text/css" href="style.css" />
 	
-	<!--jQuery link needed BEFORE trying to load calendar plugin based on jQuery!!-->
 	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
-	
 </head>
 
 <body class="centered">
@@ -56,13 +54,15 @@ if (!isset($_SESSION['user']) &&
 
 
 <?php	
-	//insert the request
+	//insert the relationship between student and tutor
 	if(isset($_POST['student_id'])){
 		include("db.php");
-		if(!($stmt = $mysqli->prepare("INSERT INTO cs340final_project.studen_tutor(sid, tid) values((select id from cs340final_project.student where user_name = ?), ?)"))){
+		if(!($stmt = $mysqli->prepare("
+			insert into cs340final_project.student_tutor(sid, tid, rate, start_date) 
+			values (?, (select cs340final_project.id from tutor where user_name = ?), ?, ?)"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 		}
-		if(!($stmt->bind_param("si",$_SESSION['user'],$_POST['tutor_id']))){
+		if(!($stmt->bind_param("iiis",$_POST['student_id'],$_SESSION['user']))){
 			echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
 		}
 		if(!$stmt->execute()){

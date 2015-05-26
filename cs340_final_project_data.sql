@@ -38,6 +38,13 @@ where t.user_name = 'tutorUser1'
 order by s.user_name
 
 -- example of adding a connection between a student and a tutor in student_tutor table:
+-- first get the average rate between student and tutor,
+--   or tutor's min_rate if greater than student's max_rate
+select if(max_rate > min_rate, (min_rate+max_rate)/2, min_rate) from
+(select min_rate from tutor where id = 1 limit 1) as t
+inner join
+(select max_rate from student where id = 1 limit 1) as s;
+-- use the result of above query as the rate inserted here:
 insert into student_tutor(sid, tid, rate, start_date) values (
 (select id from student where user_name = 'studentUser1'),
 (select id from tutor where user_name = 'tutorUser1'),

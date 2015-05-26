@@ -74,6 +74,7 @@ CREATE TABLE student_tutor(
 CREATE TABLE student_wants_tutor(
 	sid INT,
 	tid INT,
+	rate INT NOT NULL, -- newly added
 	PRIMARY KEY (sid, tid),
 	FOREIGN KEY (sid) REFERENCES student(id) ON DELETE CASCADE,
 	FOREIGN KEY (tid) REFERENCES tutor(id) ON DELETE CASCADE
