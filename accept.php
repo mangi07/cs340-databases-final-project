@@ -1,9 +1,3 @@
-
-
-EDIT THIS TO ACCEPT $_POST['<STUDENT_ID>'] AND INSERT IT INTO student_tutor
-
-
-
 <?php
 session_start();
 
@@ -53,16 +47,14 @@ if (!isset($_SESSION['user']) &&
 	<div class="button"><a href="logout.php">Log Out</a></div>
 
 
-<?php	
-	//insert the relationship between student and tutor
+<?php
 	if(isset($_POST['student_id'])){
 		include("db.php");
 		if(!($stmt = $mysqli->prepare("
-			insert into cs340final_project.student_tutor(sid, tid, rate, start_date) 
-			values (?, (select cs340final_project.id from tutor where user_name = ?), ?, ?)"))){
+			insert into cs340final_project.student_tutor(sid, tid, rate, start_date) values (?, (select id from cs340final_project.tutor where user_name = ? limit 1), (select rate from cs340final_project.student_wants_tutor where (sid,tid)=(?, (select id from cs340final_project.tutor where user_name = ? limit 1)) limit 1), now())"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 		}
-		if(!($stmt->bind_param("iiis",$_POST['student_id'],$_SESSION['user']))){
+		if(!($stmt->bind_param("isis",$_POST['student_id'],$_SESSION['user'],$_POST['student_id'],$_SESSION['user']))){
 			echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
 		}
 		if(!$stmt->execute()){
@@ -70,30 +62,31 @@ if (!isset($_SESSION['user']) &&
 			echo "Execute failed: "  . $mysqli->connect_errno . " " . $mysqli->connect_error;
 		} else {
 			echo "<p>Request for tutor submitted!</p>";
+			//upon establishing this relationship between a student and tutor, delete the
+			//corresponding relationship in student_wants_tutor
+			delete_swt_relation();
 		}
 		$stmt->close();
 	} else {
 		echo "<p class='errors'>Error: Could not get this tutor's id to submit request.</p>";
 	};
-	
-	
-	/*
--- example of adding a connection between a student and a tutor in student_tutor table:
-insert into student_tutor(sid, tid, rate, start_date) values (
-(select id from student where user_name = 'studentUser1'),
-(select id from tutor where user_name = 'tutorUser1'),
-15,
-'2015-01-15'
-);
--- upon establishing this relationship between a student and tutor, delete the
---   corresponding relationship in student_wants_tutor 
---   (done this way because it's without knowing how to use triggers)
-delete from student_wants_tutor where (sid, tid) = (
-(select id from student where user_name = 'studentUser1_changed'),
-(select id from tutor where user_name = 'tutorUser1')
-);
-	*/
-	
+	//helper function to delete relationship in student_wants_tutor
+	function delete_swt_relation(){
+		global $mysqli;
+		if(!($stmt = $mysqli->prepare("
+			delete from cs340final_project.student_wants_tutor where (sid, tid) = (?,(select id from tutor where user_name = ?))"))){
+			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		if(!($stmt->bind_param("is",$_POST['student_id'],$_SESSION['user']))){
+			echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		if(!$stmt->execute()){
+			echo "<p class='errors'>Error: The relationship with this tutor may already exist.</p>";
+			echo "Execute failed: "  . $mysqli->connect_errno . " " . $mysqli->connect_error;
+		}
+		$stmt->close();
+	}
+		
 ?>
 
 	

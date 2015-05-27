@@ -51,6 +51,8 @@ insert into student_tutor(sid, tid, rate, start_date) values (
 15,
 '2015-01-15'
 );
+-- actually:
+insert into cs340final_project.student_tutor(sid, tid, rate, start_date) values (?, (select id from cs340final_project.tutor where user_name = ? limit 1), (select rate from cs340final_project.student_wants_tutor where (sid,tid)=(?, (select id from cs340final_project.tutor where user_name = ? limit 1)) limit 1), now());
 -- upon establishing this relationship between a student and tutor, delete the
 --   corresponding relationship in student_wants_tutor 
 --   (done this way because it's without knowing how to use triggers)

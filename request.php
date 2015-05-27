@@ -90,6 +90,7 @@ if (!isset($_SESSION['user']) &&
 			//notify student of what the pay rate will be and how it is calculated (explanation follows):
 			echo "<p>You have requested this tutor at a pay rate of $rate per hour.</p>\n
 				<p>This is the average between tutor's min and your max, or the tutor's min if higher than your max.</p>
+				<p>If and when this tutor accepts your request, you will see the new tutor listed on the main page.</p>
 			";
 			
 		}
