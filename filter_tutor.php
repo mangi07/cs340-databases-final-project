@@ -54,6 +54,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	?>
 	
 	<!-- display tutors to user -->
+	<p>AVAILABLE TUTORS</p>
 	<table>
 		<tr>
 			<th colspan='9'>Tutors</th>
@@ -86,7 +87,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 ?>
 	</table>
 	
-	<!-- request tutor here -->
+	<p>REQUEST TUTOR HERE</p>
 	<form method="post" action="request.php">
 		<select name="tutor_id">
 		<?php

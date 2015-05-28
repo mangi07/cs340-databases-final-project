@@ -10,8 +10,7 @@ COURSE: CS 340 - Web Development, Oregon State University
 
 //check for login as student only
 if (!isset($_SESSION['user']) && 
-	!isset($_SESSION["user_type"]) && 
-	!($_SESSION["user_type"] == "tutor")){
+	!isset($_SESSION["user_type"])){
 	echo "<div class='box'>You must be logged in to view this page.<br>
 		<button onclick='window.location.href = \"index.php\"' class='button'>Log In</button></div>";
 	die();
@@ -47,46 +46,62 @@ if (!isset($_SESSION['user']) &&
 	<div class="button"><a href="logout.php">Log Out</a></div>
 
 
-<?php
-	if(isset($_POST['student_id'])){
+<?php	
+	//student deletes relationship with a tutor
+	if($_SESSION["user_type"]=="student" && 
+		isset($_POST["full_name"]) &&
+		isset($_POST["tutor_id"])){
+		
 		include("db.php");
+		
 		if(!($stmt = $mysqli->prepare("
-			insert into cs340final_project.student_tutor(sid, tid, rate, start_date) values (?, (select id from cs340final_project.tutor where user_name = ? limit 1), (select rate from cs340final_project.student_wants_tutor where (sid,tid)=(?, (select id from cs340final_project.tutor where user_name = ? limit 1)) limit 1), now())"))){
+			delete from cs340final_project.student_tutor
+			where (sid,tid)=((select id from student where user_name = ?), ?)
+			limit 1
+		"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 		}
-		if(!($stmt->bind_param("isis",$_POST['student_id'],$_SESSION['user'],$_POST['student_id'],$_SESSION['user']))){
+		if(!($stmt->bind_param("si",$_SESSION['user'],$_POST['tutor_id']))){
 			echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
 		}
 		if(!$stmt->execute()){
-			echo "<p class='errors'>Error: The relationship with this tutor may already exist.</p>";
+			echo "<p class='errors'>Error: Unable to delete this tutor.</p>";
 			echo "Execute failed: "  . $mysqli->connect_errno . " " . $mysqli->connect_error;
 		} else {
-			echo "<p>You now have a new student!  Return to the main page to see your students.</p>";
-			//upon establishing this relationship between a student and tutor, delete the
-			//corresponding relationship in student_wants_tutor
-			delete_swt_relation();
+			echo "<p>You have successfully deleted your relationship with tutor, " . $_POST["full_name"] . ".";
 		}
 		$stmt->close();
-	} else {
-		echo "<p class='errors'>Error: Could not get this tutor's id to submit request.</p>";
+		
 	};
-	//helper function to delete relationship in student_wants_tutor
-	function delete_swt_relation(){
-		global $mysqli;
+	
+	//tutor deletes relationship with a student
+	if($_SESSION["user_type"]=="tutor" && 
+		isset($_POST["full_name"]) &&
+		isset($_POST["student_id"])){
+		
+		include("db.php");
+		
 		if(!($stmt = $mysqli->prepare("
-			delete from cs340final_project.student_wants_tutor where (sid, tid) = (?,(select id from tutor where user_name = ?))"))){
+			delete from cs340final_project.student_tutor
+			where (sid,tid)=(?,(select id from tutor where user_name = ?))
+			limit 1
+		"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 		}
 		if(!($stmt->bind_param("is",$_POST['student_id'],$_SESSION['user']))){
 			echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
 		}
 		if(!$stmt->execute()){
-			echo "<p class='errors'>Error: The relationship with this tutor may already exist.</p>";
+			echo "<p class='errors'>Error: Unable to delete this student.</p>";
 			echo "Execute failed: "  . $mysqli->connect_errno . " " . $mysqli->connect_error;
+		} else {
+			echo "<p>You have successfully deleted your relationship with student, " . $_POST["full_name"];
 		}
 		$stmt->close();
-	}
 		
+	};
+	
+	
 ?>
 
 	

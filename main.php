@@ -101,7 +101,7 @@ note: add manager page to view how many students each tutor has, sessions, and f
 		while ($stmt->fetch()){
 			$students[] = array("fname" => $fname, "lname" => $lname, "year_born" => $year_born, "gender" => $gender, "start_date" => $start_date, "end_date" => $end_date, "max_rate" => $max_rate, "first_lang" => $first_lang, "second_lang" => $second_lang, "id" => $id);
 		}
-		echo "<p>PENDING STUDENT REQUESTS:</p>";
+		echo "<p>PENDING STUDENT REQUESTS</p>";
 		echo "<table><tr><th>First Name<th>Last Name<th>Year Born<th>Gender
 			<th>Start Date<th>End Date<th>Max Rate<th>First Language<th>Second Language</tr>";
 		
@@ -141,8 +141,10 @@ note: add manager page to view how many students each tutor has, sessions, and f
 	</form>
 <?php endif; ?>
 
-<!-- Student sees relationships with tutors and related info, here. -->
+
 <?php
+/*STUDENT SEES CURRENT TUTOR RELATIONSHIPS*/
+
 if($_SESSION['user_type']=="student"){
 	include("db.php");
 	if(!($stmt = $mysqli->prepare("
@@ -194,9 +196,95 @@ if($_SESSION['user_type']=="student"){
 		
 	}
 	echo "</table>";
+	
+	echo "<p>REMOVE TUTOR RELATIONSHIP HERE</p>";
+	echo "<form method='post' action='remove_relationship.php'>\n
+		<select name='tutor_id'>";
+			foreach ($tutors as $key => $val){
+				$tutor_id = $val['id'];
+				$tutor_name = $val['fname'] . " " . $val['lname'];
+				echo "<option value='$tutor_id'>$tutor_name</option>\n";
+			}
+	echo "</select>\n
+		<input type='hidden' name='full_name' value='$tutor_name'></input>\n
+		<input type='submit'></input>\n
+	</form>";
+		
+}
+
+
+/*TUTOR SEES CURRENT STUDENT RELATIONSHIPS*/
+
+if($_SESSION['user_type']=="tutor"){
+	include("db.php");
+	if(!($stmt = $mysqli->prepare("
+		select s.fname, s.lname, s.year_born, s.gender, 
+		s.start_date, s.end_date, s.max_rate, 
+		s.first_lang, s.second_lang, s.id 
+		from cs340final_project.student as s inner join	
+		cs340final_project.student_tutor as st
+		on s.id = st.sid inner join
+		cs340final_project.tutor as t
+		on st.tid = t.id
+		where t.user_name = ?
+		order by s.lname, s.fname
+	"))){
+		echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!($stmt->bind_param("s",$_SESSION['user']))){
+		echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!$stmt->execute()){
+		echo "Execute failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	
+	if(!$stmt->bind_result($fname, $lname, $year_born, $gender, $start_date, $end_date, $max_rate, $first_lang, $second_lang, $id)){
+		echo "Bind paramaters failed: " . $stmt->errno . " " . $stmt->error;
+	};
+		
+	//need to fetch each row here and accumulate into an array
+	$students = array();
+	while ($stmt->fetch()){
+		$students[] = array("fname" => $fname, "lname" => $lname, "year_born" => $year_born, "gender" => $gender, "start_date" => $start_date, "end_date" => $end_date, "max_rate" => $max_rate, "first_lang" => $first_lang, "second_lang" => $second_lang, "id" => $id);
+	}
+	echo "<p>YOUR CURRENT STUDENTS:</p>";
+	echo "<table><tr><th>First Name<th>Last Name<th>Year Born<th>Gender
+		<th>Start Date<th>End Date<th>Max Rate<th>First Language<th>Second Language</tr>";
+	
+	foreach($students as $key => $val){
+		echo "<tr>";
+		
+		//counter logic from http://stackoverflow.com/questions/1070244/how-to-determine-the-first-and-last-iteration-in-a-foreach-loop
+		$i = 0;
+		$len = count($val);
+		foreach ($val as $k => $v) {
+			if ($i < $len-1) {
+				echo "<td>" . $v;
+			}
+			$i++;
+		}
+		
+	}
+	echo "</table>";
+	
+	echo "<p>REMOVE STUDENT RELATIONSHIP HERE</p>";
+	echo "<form method='post' action='remove_relationship.php'>\n
+		<select name='student_id'>";
+			foreach ($students as $key => $val){
+				$student_id = $val['id'];
+				$student_name = $val['fname'] . " " . $val['lname'];
+				echo "<option value='$student_id'>$student_name</option>\n";
+			}
+	echo "</select>\n
+		<input type='hidden' name='full_name' value='$student_name'></input>\n
+		<input type='submit'></input>\n
+	</form>";
 		
 }
 ?>
+
+
+
 
 <!-- VIEW PERSONAL DATA -->
 <h2>Personal Data</h2>
