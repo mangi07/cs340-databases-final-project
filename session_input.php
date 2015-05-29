@@ -71,6 +71,13 @@ if (!isset($_SESSION['user']) &&
 			//alert(end);
 			
 			//post to php that inserts to database and echoes back message to check here
+			$.post( "session_record.php", { start:start, end:end })
+				.done(function( data ) {
+					$("#response").text(data);
+				})
+				.fail(function() {
+					$('#errors').text("Failed to communicate with the server.");
+				});
 			return;
 		}
 	</script>
@@ -94,12 +101,14 @@ if (!isset($_SESSION['user']) &&
 <?php if($_SESSION["user_type"]=="tutor"): ?>
 	<h3 id="debug">RECORD SESSION</h3>
 	<form method="post" action="log_session.php">
+		<!-- NEED TO ADD WAY TO SELECT ONE OF THE TUTOR'S STUDENTS AND POST THAT, TOO! -->
 		<p>Start Time: <input type="datetime-local" name="start_time" id="start"></p>
 		<p>End Time: <input type="datetime-local" name="end_time" id="end"></p>
 		<p id="diff">Time Difference: </p>
 		<p class="errors" id="errors"></p>
 	</form>
 	<button onclick="submitSession();">Debug Check Dates</button>
+	<p id="response"></p>
 <?php endif; ?>
 	
 	
