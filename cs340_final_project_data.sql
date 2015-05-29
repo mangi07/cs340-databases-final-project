@@ -67,6 +67,8 @@ delete from student_tutor where (sid, tid) = (
 (select id from student where user_name = 'studentUser1_changed'),
 (select id from tutor where user_name = 'tutorUser1')
 );
+-- ADJUST QUERY HERE TO REFLECT WHAT IT ACTUALLY IS IN CODE,
+-- IE: SLIGHTLY DIFFERENT QUERY DEPENDING ON WHETHER IT'S A STUDENT OR TUTOR
 
 
 --  where a student is looking for a certain tutor, filter search by one or more conditions:
@@ -164,6 +166,12 @@ values (
   (select id from tutor where user_name = 'tutorUser1')
 ) )
 );
+-- JUST USE NOW() WITH SESSION VARIABLES, WHERE TUTOR LOGS IN
+--   AND CLICKS START AND END FOR A PARTICULAR SESSION,
+--   WHERE START SUBMITS TO PAGE WHERE PHP CREATES START TIME
+--   SESSION VARIABLE AND SUBMITS TO SESSION-RECORDING PAGE WITH 
+--   POST END TIME AND INSERT INTO DATABASE
+-- ALSO USERS SHOULD BE ABLE TO VIEW THE SESSIONS THEY'VE HAD
 
 
 -- Create query to determine the total amount earned by a tutor.
@@ -178,10 +186,10 @@ select sum(payments.total) as total from
   
 ) as payments);
 -- Example result: 4.6417
-
+-- ALSO, SIMILAR QUERY FOR STUDENT TO SEE THE TOTAL AMOUNT PAID TO ALL TUTORS.
 
 -- Delete a user (whether that be a student or a tutor):
--- delete from users where user_name = 'studentUser1_changed';
+delete from users where user_name = 'studentUser1_changed';
 -- In this example, we're deleting a student.
 
 -- *********!!
