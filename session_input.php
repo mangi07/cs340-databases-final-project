@@ -67,13 +67,15 @@ if (!isset($_SESSION['user']) &&
 			//format for insertion to database
 			start = start.replace("T", " ") + ":00";
 			end = end.replace("T", " ") + ":00";
+			var id = $("#student_id").val();
+			alert("id: " + id);
 			//alert(start);
 			//alert(end);
 			
 			//post to php that inserts to database and echoes back message to check here
-			$.post( "session_record.php", { start:start, end:end })
+			$.post( "session_record.php", { start:start, end:end, id:id })
 				.done(function( data ) {
-					$("#response").text(data);
+					$("#response").html(data);
 				})
 				.fail(function() {
 					$('#errors').text("Failed to communicate with the server.");
@@ -102,6 +104,37 @@ if (!isset($_SESSION['user']) &&
 	<h3 id="debug">RECORD SESSION</h3>
 	<form method="post" action="log_session.php">
 		<!-- NEED TO ADD WAY TO SELECT ONE OF THE TUTOR'S STUDENTS AND POST THAT, TOO! -->
+		<select name="student" id="student_id">
+<?php
+	include("db.php");
+	if(!($stmt = $mysqli->prepare("
+		select s.fname, s.lname, s.id from cs340final_project.student as s inner join
+		cs340final_project.student_tutor as st
+		on s.id = st.sid inner join
+		cs340final_project.tutor as t
+		on t.id = st.tid
+		where t.user_name = ?
+		order by lname, fname
+	"))){
+		echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!($stmt->bind_param("s",$_SESSION['user']))){
+		echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!$stmt->execute()){
+		echo "Execute failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!$stmt->bind_result($fname, $lname, $id)){
+		echo "Bind paramaters failed: " . $stmt->errno . " " . $stmt->error;
+	};
+	$student = "";
+	while($stmt->fetch()){
+		$student .= $fname . " " . $lname . ", id: " . $id;
+		echo "<option value='$id'>$student</option>";
+		$student = "";
+	}
+?>
+		</select> 
 		<p>Start Time: <input type="datetime-local" name="start_time" id="start"></p>
 		<p>End Time: <input type="datetime-local" name="end_time" id="end"></p>
 		<p id="diff">Time Difference: </p>
@@ -111,6 +144,7 @@ if (!isset($_SESSION['user']) &&
 	<p id="response"></p>
 <?php endif; ?>
 	
+	<div class="button"><a href="main.php">Back To Main</a></div>
 	
 	
 </body>

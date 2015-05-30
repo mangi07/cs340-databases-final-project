@@ -18,20 +18,58 @@ if (!isset($_SESSION['user']) &&
 }
 
 
-if(isset($_POST["start"]) && isset($_POST["end"])){
+if(isset($_POST["start"]) && isset($_POST["end"]) && isset($_POST["id"])){
+	
+	//debug
+	//echo "********$_POST[start]*******$_POST[end]***********$_POST[id]********";
+	
 	include("db.php");
 	if(!($stmt = $mysqli->prepare("
-	EDIT THIS!!!
 		insert into sessions(sid, tid, start_time, end_time, rate)
-values (
-  (select id from student where user_name = 'studentUser1_changed'),
-  (select id from tutor where user_name = 'tutorUser1'),
-  '2015-05-17 21:42:45', now(),
-( select rate from student_tutor where (sid, tid) = (
-  (select id from student where user_name = 'studentUser1_changed'),
-  (select id from tutor where user_name = 'tutorUser1')
-) )
-);
+		values (
+		  ?,
+		  (select id from tutor where user_name = ?),
+		  ?, ?,
+		( select rate from student_tutor where (sid, tid) = (
+		  ?,
+		  (select id from tutor where user_name = ?)
+		) )
+		)
+	"))){
+		echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!($stmt->bind_param("isssis",$_POST['id'],
+								$_SESSION['user'],
+								$_POST['start'], $_POST['end'],
+								$_POST['id'],
+								$_SESSION['user']
+	))){
+		echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!$stmt->execute()){
+		echo "Execute failed: "  . $stmt->errno . " " . $stmt->error;
+	}else{
+		$rate = get_rate();
+		echo "Successful entry for session:<br>
+		Start Time: $_POST[start]<br>
+		End Time: $_POST[end]<br>
+		Rate: $rate per hour";
+	}
+	$stmt->close();
+	
+	
+}
+
+function get_rate(){
+	global $mysqli;
+	if(!($stmt = $mysqli->prepare("
+		select rate from cs340final_project.student as s inner join
+		cs340final_project.student_tutor as st
+		on s.id = st.sid inner join
+		cs340final_project.tutor as t
+		on t.id = st.tid
+		where t.user_name = ?
+		limit 1
 	"))){
 		echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 	}
@@ -41,7 +79,11 @@ values (
 	if(!$stmt->execute()){
 		echo "Execute failed: "  . $stmt->errno . " " . $stmt->error;
 	}
- . " and " . $_POST["end"];
-	
-	
+	if(!$stmt->bind_result($r)){
+		echo "Bind paramaters failed: " . $stmt->errno . " " . $stmt->error;
+	};
+	$stmt->fetch();
+	$stmt->close();
+	return $r;
+}
 ?>

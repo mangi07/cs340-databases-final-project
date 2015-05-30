@@ -69,6 +69,7 @@ note: add manager page to view how many students each tutor has, sessions, and f
 <!-- View pending requests, relationships, and sessions or link to other php scripts with these things -->
 <?php
 	if($_SESSION['user_type']=="tutor"){
+		echo "<div class='button centered'><a href='session_input.php'>Record a Session</a></div>";
 		//get and view pending requests from students...
 		include("db.php");
 		if(!($stmt = $mysqli->prepare("
