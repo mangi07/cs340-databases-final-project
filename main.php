@@ -44,14 +44,14 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 ?>
 
 
-	<!-- Logout functionality provided in main.js (160-166) is attached to this button: -->
+<!-- USER LOGOUT HERE -->
 	<div onclick="window.location.href = 'logout.php'" class="button">Log Out</div>
 	<!--<div class="button"><a href="logout.php">Log Out</a></div>-->
 
 <!-- Check mode here, a post variable (if set and what value)
 mode: update_user, filter_tutors, set_schedule, request_tutor, accept_student 
 
-note: add financial info (and sessions), display schedule, and tutor/student connections relevant to user 
+note: add financial info (and sessions), display schedule
 note: insert into availability all 0's when creating a new user, use php to display schedule as styled table
 note: add manager page to view how many students each tutor has, sessions, and financial info
 -->
@@ -66,12 +66,61 @@ note: add manager page to view how many students each tutor has, sessions, and f
 ?>
 
 
-<!-- View pending requests, relationships, and sessions or link to other php scripts with these things -->
+<!-- Tutor view sessions, pending requests, and relationships -->
 <?php
 	if($_SESSION['user_type']=="tutor"){
-		echo "<div class='button centered'><a href='session_input.php'>Record a Session</a></div>";
-		//get and view pending requests from students...
 		include("db.php");
+		
+		//tutor view sessions with each student here...
+		if(!($stmt = $mysqli->prepare("
+			select st.id as student_id, st.fname, st.lname, ss.start_time, ss.end_time,
+			(time_to_sec(timediff(end_time, start_time))/3600) as hours,
+			ss.rate,
+			((time_to_sec(timediff(end_time, start_time))/3600) * rate) as payment
+			from cs340final_project.sessions as ss inner join
+			cs340final_project.student as st on ss.sid = st.id
+			where ss.tid = (select id from cs340final_project.tutor where user_name = ?)
+			order by st.id;
+		"))){
+			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		if(!($stmt->bind_param("s",$_SESSION['user']))){
+			echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		if(!$stmt->execute()){
+			echo "Execute failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		
+		if(!$stmt->bind_result($student_id, $fname, $lname, $start_time, $end_time, $hours, $rate, $payment)){
+			echo "Bind paramaters failed: " . $stmt->errno . " " . $stmt->error;
+		};
+		
+		$payments = array();
+		while ($stmt->fetch()){
+			$payments[] = array("student_id" => $student_id, "fname" => $fname, "lname" => $lname, "start_time" => $start_time, "end_time" => $end_time, "hours" => $hours, "rate" => $rate, "payment" => $payment);
+		}
+		echo "<p>COMPLETED SESSIONS</p>";
+		echo "<table><tr><th>Student ID<th>First Name<th>Last Name<th>Start Time<th>End Time<th>Hours<th>Rate<th>Payment</tr>";
+		
+		foreach($payments as $key => $val){
+			echo "<tr>";
+			
+			//counter logic from http://stackoverflow.com/questions/1070244/how-to-determine-the-first-and-last-iteration-in-a-foreach-loop
+			$i = 0;
+			$len = count($val);
+			foreach ($val as $k => $v) {
+				if ($i < $len) {
+					echo "<td>" . $v;
+				}
+				$i++;
+			}
+			
+		}
+		echo "</table>";
+		
+		
+		//tutor get and view pending requests from students...
+		echo "<div class='button centered'><a href='session_input.php'>Record a Session</a></div>";
 		if(!($stmt = $mysqli->prepare("
 			select s.fname, s.lname, s.year_born, s.gender, 
 			s.start_date, s.end_date, s.max_rate, 
@@ -126,7 +175,7 @@ note: add manager page to view how many students each tutor has, sessions, and f
 ?>
 
 <?php if($_SESSION['user_type']=="tutor"):  ?>
-	<!-- accept students here -->
+	<!-- tutor accept a student here -->
 	<form method="post" action="accept.php">
 		<p>ACCEPT STUDENT FROM DROP-DOWN MENU</p>
 		<select name="student_id">
@@ -143,9 +192,62 @@ note: add manager page to view how many students each tutor has, sessions, and f
 <?php endif; ?>
 
 
-<?php
-/*STUDENT SEES CURRENT TUTOR RELATIONSHIPS*/
 
+<!-- Student view sessions, pending requests, and relationships -->
+<?php
+
+if($_SESSION['user_type']=="student"){
+		include("db.php");
+		
+		//student view sessions with each tutor here...
+		if(!($stmt = $mysqli->prepare("
+			select tt.id as tutor_id, tt.fname, tt.lname, ss.start_time, ss.end_time,
+			(time_to_sec(timediff(end_time, start_time))/3600) as hours,
+			ss.rate,
+			((time_to_sec(timediff(end_time, start_time))/3600) * rate) as payment
+			from cs340final_project.sessions as ss inner join
+			cs340final_project.tutor as tt on ss.sid = tt.id
+			where ss.tid = (select id from cs340final_project.student where user_name = ?)
+			order by tt.id;
+		"))){
+			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		if(!($stmt->bind_param("s",$_SESSION['user']))){
+			echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		if(!$stmt->execute()){
+			echo "Execute failed: "  . $stmt->errno . " " . $stmt->error;
+		}
+		
+		if(!$stmt->bind_result($tutor_id, $fname, $lname, $start_time, $end_time, $hours, $rate, $payment)){
+			echo "Bind paramaters failed: " . $stmt->errno . " " . $stmt->error;
+		};
+		
+		$payments = array();
+		while ($stmt->fetch()){
+			$payments[] = array("tutor_id" => $tutor_id, "fname" => $fname, "lname" => $lname, "start_time" => $start_time, "end_time" => $end_time, "hours" => $hours, "rate" => $rate, "payment" => $payment);
+		}
+		echo "<p>COMPLETED SESSIONS</p>";
+		echo "<table><tr><th>Tutor ID<th>First Name<th>Last Name<th>Start Time<th>End Time<th>Hours<th>Rate<th>Payment</tr>";
+		
+		foreach($payments as $key => $val){
+			echo "<tr>";
+			
+			//counter logic from http://stackoverflow.com/questions/1070244/how-to-determine-the-first-and-last-iteration-in-a-foreach-loop
+			$i = 0;
+			$len = count($val);
+			foreach ($val as $k => $v) {
+				if ($i < $len) {
+					echo "<td>" . $v;
+				}
+				$i++;
+			}
+			
+		}
+		echo "</table>";
+}
+
+/*STUDENT SEES CURRENT TUTOR RELATIONSHIPS*/
 if($_SESSION['user_type']=="student"){
 	include("db.php");
 	if(!($stmt = $mysqli->prepare("
@@ -215,7 +317,6 @@ if($_SESSION['user_type']=="student"){
 
 
 /*TUTOR SEES CURRENT STUDENT RELATIONSHIPS*/
-
 if($_SESSION['user_type']=="tutor"){
 	include("db.php");
 	if(!($stmt = $mysqli->prepare("
@@ -375,7 +476,7 @@ echo "
 	
 	
 	
-<!-- FILTER TUTORS -->
+<!-- STUDENT FILTER TUTORS -->
 <?php if ($_SESSION["user_type"] == "student"): ?>
 <h2>Filter Tutors</h2>
 	<!-- Form submitted via ajax method create_user() in index.js: -->
@@ -414,7 +515,9 @@ echo "
 	function update_user(){
 	
 		//use $_POST variables to insert into database...
-		$keys = ['fname', 'lname', 'year_born','gender','skype_id','start_date','end_date','min_rate','first_lang','second_lang'];
+		if($_SESSION['user_type']=='tutor'){$rate = 'min_rate';}
+		if($_SESSION['user_type']=='student'){$rate = 'max_rate';}
+		$keys = ['fname', 'lname', 'year_born','gender','skype_id','start_date','end_date',$rate,'first_lang','second_lang'];
 		$pairs = array();
 		foreach ($keys as $name) {
 			if (isset($_POST[$name]) && !($_POST[$name] == ""))
@@ -466,7 +569,18 @@ echo "
 		return $arr;
 	}
 	
-	
+	/*
+	//borrowed from user m dot amiot at otak-arts dot com: http://php.net/manual/en/mysqli-result.fetch-all.php
+	public function fetch_all($resulttype = MYSQLI_NUM)
+        {
+            if (method_exists('mysqli_result', 'fetch_all')) # Compatibility layer with PHP < 5.3
+                $res = parent::fetch_all($resulttype);
+            else
+                for ($res = array(); $tmp = $this->fetch_array($resulttype);) $res[] = $tmp;
+
+            return $res;
+        }
+	*/
 ?>
 
 	

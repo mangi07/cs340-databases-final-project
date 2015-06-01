@@ -190,6 +190,8 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	
 ?>
 	
+	<div class="button"><a href="main.php">Back To Main</a></div>
+	
 </body>
 
 </html>

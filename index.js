@@ -1,7 +1,7 @@
 /*
 AUTHOR:	Benjamin R. Olson
-DATE:	March 8, 2015
-COURSE: CS 290 - Web Development, Oregon State University
+DATE:	May 31, 2015
+COURSE: CS 340 - Web Development, Oregon State University
 */
 
 

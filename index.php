@@ -3,7 +3,7 @@ session_start();
 
 /*
 AUTHOR:	Benjamin R. Olson
-DATE:	March 8, 2015
+DATE:	May 31, 2015
 COURSE: CS 290 - Web Development, Oregon State University
 */
 

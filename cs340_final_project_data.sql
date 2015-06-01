@@ -168,9 +168,16 @@ values (
 );
 
 -- ALSO USERS SHOULD BE ABLE TO VIEW THE SESSIONS THEY'VE HAD
+select st.id as student_id, st.fname, st.lname, ss.start_time, ss.end_time,
+(time_to_sec(timediff(end_time, start_time))/3600) as hours,
+ss.rate,
+((time_to_sec(timediff(end_time, start_time))/3600) * rate) as payment
+from sessions as ss inner join
+student as st on ss.sid = st.id
+where ss.tid = (select id from tutor where user_name = 't1');
 
-
--- Create query to determine the total amount earned by a tutor.
+-- Create query to determine the total amount earned by a tutor from a given student.
+-- IN PHP, CREATE DROPDOWN TO SELECT A STUDENT
 -- (note: I'm not keeping track of payments! 
 -- Just assuming tutor has been paid in full for all sessions.)
 -- CORRECTION TO BE MADE IN sum(payments) -should be column, like sum(payments.<columnName>)
@@ -178,11 +185,14 @@ select sum(payments.total) as total from
 ((
   select ((time_to_sec(timediff(end_time, start_time))/3600)*rate) as total
   from sessions
-  where tid = (select id from tutor where user_name = 'tutorUser1')
+  where (tid, sid) = ((select id from tutor where user_name = 't1' limit 1),
+						(select id from tutor where user_name = 's1' limit 1))
   
 ) as payments);
 -- Example result: 4.6417
 -- ALSO, SIMILAR QUERY FOR STUDENT TO SEE THE TOTAL AMOUNT PAID TO ALL TUTORS.
+
+-- QUERY FOR TUTOR TO DELETE A SESSION(S) THAT A STUDENT HAS ALREADY PAID (USE CHECKBOXES ON FORM??)
 
 -- Delete a user (whether that be a student or a tutor):
 delete from users where user_name = 'studentUser1_changed';
