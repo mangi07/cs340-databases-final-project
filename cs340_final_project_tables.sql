@@ -2,16 +2,14 @@
 
 DROP TABLE IF EXISTS student_tutor;
 DROP TABLE IF EXISTS student_wants_tutor;
-DROP TABLE IF EXISTS student_availability;
-DROP TABLE IF EXISTS tutor_availability;
 DROP TABLE IF EXISTS availability;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS student;
 DROP TABLE IF EXISTS tutor;
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users2;
 
 -- Table to enforce uniqueness of (user_name, password) pairs across tutor and student tables
-CREATE TABLE users(
+CREATE TABLE users2(
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	user_name VARCHAR(255) UNIQUE KEY,
 	password VARCHAR(255) NOT NULL
@@ -33,7 +31,7 @@ CREATE TABLE student(
 	max_rate INT NOT NULL,
 	first_lang VARCHAR(255),
 	second_lang VARCHAR(255),
-	FOREIGN KEY (user_name) REFERENCES users(user_name) ON DELETE CASCADE ON UPDATE CASCADE
+	FOREIGN KEY (user_name) REFERENCES users2(user_name) ON DELETE CASCADE ON UPDATE CASCADE
 ) engine = InnoDB;
 -- gender can be either 'm' or 'f'
 -- max_rate is the maximum rate the student is willing to pay
@@ -52,7 +50,7 @@ CREATE TABLE tutor(
 	min_rate INT NOT NULL,
 	first_lang VARCHAR(255),
 	second_lang VARCHAR(255),
-	FOREIGN KEY (user_name) REFERENCES users(user_name) ON DELETE CASCADE ON UPDATE CASCADE
+	FOREIGN KEY (user_name) REFERENCES users2(user_name) ON DELETE CASCADE ON UPDATE CASCADE
 ) engine = InnoDB;
 -- gender can be either 'm' or 'f'
 -- min_rate is the minimum pay the tutor is willing to accept
@@ -98,7 +96,8 @@ create table availability(
 	wed char(48) not null,
 	thurs char(48) not null,
 	fri char(48) not null,
-	sat char(48) not null
+	sat char(48) not null,
+	FOREIGN KEY (user_name) REFERENCES users2(user_name) ON DELETE CASCADE ON UPDATE CASCADE
 ) engine = InnoDB;
 -- Each day is a string of '0's (unavailable) and '1's (available),
 --   where each 0 or 1 represents a 30-minute time segment,

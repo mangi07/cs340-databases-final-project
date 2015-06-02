@@ -51,7 +51,7 @@ if (!isset($_SESSION['user']) &&
 	if(isset($_POST['student_id'])){
 		include("db.php");
 		if(!($stmt = $mysqli->prepare("
-			insert into cs340final_project.student_tutor(sid, tid, rate, start_date) values (?, (select id from cs340final_project.tutor where user_name = ? limit 1), (select rate from cs340final_project.student_wants_tutor where (sid,tid)=(?, (select id from cs340final_project.tutor where user_name = ? limit 1)) limit 1), now())"))){
+			insert into student_tutor(sid, tid, rate, start_date) values (?, (select id from tutor where user_name = ? limit 1), (select rate from student_wants_tutor where (sid,tid)=(?, (select id from tutor where user_name = ? limit 1)) limit 1), now())"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 		}
 		if(!($stmt->bind_param("isis",$_POST['student_id'],$_SESSION['user'],$_POST['student_id'],$_SESSION['user']))){
@@ -74,7 +74,7 @@ if (!isset($_SESSION['user']) &&
 	function delete_swt_relation(){
 		global $mysqli;
 		if(!($stmt = $mysqli->prepare("
-			delete from cs340final_project.student_wants_tutor where (sid, tid) = (?,(select id from tutor where user_name = ?))"))){
+			delete from student_wants_tutor where (sid, tid) = (?,(select id from tutor where user_name = ?))"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 		}
 		if(!($stmt->bind_param("is",$_POST['student_id'],$_SESSION['user']))){

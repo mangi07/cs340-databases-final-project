@@ -19,7 +19,7 @@ if (isset($_SESSION["user"]) && isset($_SESSION["user_type"])){//session variabl
 
 	$user = $_SESSION["user"];
 
-	if(!($stmt = $mysqli->prepare("DELETE FROM cs340final_project.users WHERE user_name = ?"))){
+	if(!($stmt = $mysqli->prepare("DELETE FROM users2 WHERE user_name = ? limit 1"))){
 		echo "<p class='box'>Failed to prepare for executing delete operation.<p>";
 		echo "<a href='main.php' class='button'>Back To Main Page</a>";
 		die();

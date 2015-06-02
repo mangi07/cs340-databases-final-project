@@ -76,7 +76,7 @@ if (!isset($_SESSION['user']) &&
 		//debug
 		//var_dump($rate); //string "15.0000"
 		
-		if(!($stmt = $mysqli->prepare("INSERT INTO cs340final_project.student_wants_tutor(sid, tid, rate) values ((select id from cs340final_project.student where user_name = ?), ?, ?)"))){
+		if(!($stmt = $mysqli->prepare("INSERT INTO student_wants_tutor(sid, tid, rate) values ((select id from student where user_name = ?), ?, ?)"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 		}
 		if(!($stmt->bind_param("sis",$_SESSION['user'],$_POST['tutor_id'],$rate))){

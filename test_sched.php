@@ -56,7 +56,7 @@
 	
 	//eventually, add where __ = ? to prepared statement
 	//  to indicate which student
-    if(!($stmt = $mysqli->prepare("select sun, mon, tues, wed, thurs, fri, sat from test_sched.sched where user_name = ?;") )){
+    if(!($stmt = $mysqli->prepare("select sun, mon, tues, wed, thurs, fri, sat from sched where user_name = ?;") )){
 	  echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 	}
 	if(!($stmt->bind_param("s",$user_name))){
@@ -93,9 +93,9 @@
 	
 	//join tables between two users
 	if(!($stmt = $mysqli->prepare("select tb1.*, tb2.* from
-		(select sun, mon, tues, wed, thurs, fri, sat from test_sched.sched where user_name = ?) as tb1
+		(select sun, mon, tues, wed, thurs, fri, sat from sched where user_name = ?) as tb1
 		inner join
-		(select sun, mon, tues, wed, thurs, fri, sat from test_sched.sched where user_name = ?) as tb2
+		(select sun, mon, tues, wed, thurs, fri, sat from sched where user_name = ?) as tb2
 		on 1;") )){
 		echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 	}
@@ -138,7 +138,7 @@
   function insert_weekly_sched(&$days, $user_name){
     global $mysqli;
 	
-    if(!($stmt = $mysqli->prepare("insert into test_sched.sched(
+    if(!($stmt = $mysqli->prepare("insert into sched(
 	  user_name, sun, mon, tues, wed, thurs, fri, sat) values (
 	  ?, ?, ?, ?, ?, ?, ?, ?)") )){
 	echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;

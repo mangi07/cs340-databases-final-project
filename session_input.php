@@ -108,10 +108,10 @@ if (!isset($_SESSION['user']) &&
 <?php
 	include("db.php");
 	if(!($stmt = $mysqli->prepare("
-		select s.fname, s.lname, s.id from cs340final_project.student as s inner join
-		cs340final_project.student_tutor as st
+		select s.fname, s.lname, s.id from student as s inner join
+		student_tutor as st
 		on s.id = st.sid inner join
-		cs340final_project.tutor as t
+		tutor as t
 		on t.id = st.tid
 		where t.user_name = ?
 		order by lname, fname

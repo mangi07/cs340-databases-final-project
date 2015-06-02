@@ -17,7 +17,7 @@ create table sched(
 
 
 
-insert into test_sched.sched(
+insert into sched(
 	  user_name, sun, mon, tues, wed, thurs, fri, sat) values (
 	  'bobby', 
 	  '000001111100000111110000011111000001111100000000', 
@@ -29,7 +29,7 @@ insert into test_sched.sched(
 	  '000001111100000111110000011111000001111100000000'
 );
 
-insert into test_sched.sched(
+insert into sched(
 	  user_name, sun, mon, tues, wed, thurs, fri, sat) values (
 	  'frankie', 
 	  '111110000011111000001111100000111110000011111111', 

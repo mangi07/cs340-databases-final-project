@@ -63,10 +63,10 @@ if(isset($_POST["start"]) && isset($_POST["end"]) && isset($_POST["id"])){
 function get_rate(){
 	global $mysqli;
 	if(!($stmt = $mysqli->prepare("
-		select rate from cs340final_project.student as s inner join
-		cs340final_project.student_tutor as st
+		select rate from student as s inner join
+		student_tutor as st
 		on s.id = st.sid inner join
-		cs340final_project.tutor as t
+		tutor as t
 		on t.id = st.tid
 		where t.user_name = ?
 		limit 1

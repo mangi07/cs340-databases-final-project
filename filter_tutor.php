@@ -121,7 +121,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		$cond_str = "";
 		
 		if (isset($_POST['year_born']) && !($_POST['year_born'] == "")) {
-			$conditions[] = "year_born <= ?";
+			$conditions[] = "year_born >= ?";
 			$params[] = $_POST['year_born'];
 		}
 		if (isset($_POST['gender']) && !($_POST['gender'] == "")) {
@@ -151,7 +151,8 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		
 		$cond_str = implode(" AND ", $conditions);
 		
-		$sql = sprintf("SELECT fname, lname, year_born, gender, start_date, end_date, min_rate, first_lang, second_lang, id FROM cs340final_project.tutor WHERE %s ORDER BY lname, fname", $cond_str);
+		//USE OUTER JOIN?? OR NOT IN TO ELIMINATE TUTORS THAT ARE ALREADY IN RELATIONSHIP TO THE GIVEN STUDENT
+		$sql = sprintf("SELECT fname, lname, year_born, gender, start_date, end_date, min_rate, first_lang, second_lang, id FROM tutor WHERE %s ORDER BY lname, fname", $cond_str);
 		
 		if (!($stmt = $mysqli->prepare($sql))) {
 			echo "Prepare failed" . $stmt->errno . " " . $stmt->error;

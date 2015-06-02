@@ -77,9 +77,9 @@ note: add manager page to view how many students each tutor has, sessions, and f
 			(time_to_sec(timediff(end_time, start_time))/3600) as hours,
 			ss.rate,
 			((time_to_sec(timediff(end_time, start_time))/3600) * rate) as payment
-			from cs340final_project.sessions as ss inner join
-			cs340final_project.student as st on ss.sid = st.id
-			where ss.tid = (select id from cs340final_project.tutor where user_name = ?)
+			from sessions as ss inner join
+			student as st on ss.sid = st.id
+			where ss.tid = (select id from tutor where user_name = ?)
 			order by st.id;
 		"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
@@ -125,10 +125,10 @@ note: add manager page to view how many students each tutor has, sessions, and f
 			select s.fname, s.lname, s.year_born, s.gender, 
 			s.start_date, s.end_date, s.max_rate, 
 			s.first_lang, s.second_lang, s.id 
-			from cs340final_project.student as s inner join	
-			cs340final_project.student_wants_tutor as swt
+			from student as s inner join	
+			student_wants_tutor as swt
 			on s.id = swt.sid inner join
-			cs340final_project.tutor as t
+			tutor as t
 			on swt.tid = t.id
 			where t.user_name = ?
 			order by s.lname, s.fname
@@ -205,9 +205,9 @@ if($_SESSION['user_type']=="student"){
 			(time_to_sec(timediff(end_time, start_time))/3600) as hours,
 			ss.rate,
 			((time_to_sec(timediff(end_time, start_time))/3600) * rate) as payment
-			from cs340final_project.sessions as ss inner join
-			cs340final_project.tutor as tt on ss.sid = tt.id
-			where ss.tid = (select id from cs340final_project.student where user_name = ?)
+			from sessions as ss inner join
+			tutor as tt on ss.sid = tt.id
+			where ss.tid = (select id from student where user_name = ?)
 			order by tt.id;
 		"))){
 			echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
@@ -254,10 +254,10 @@ if($_SESSION['user_type']=="student"){
 		select t.fname, t.lname, t.year_born, t.gender, 
 		t.start_date, t.end_date, t.min_rate, 
 		t.first_lang, t.second_lang, t.id 
-		from cs340final_project.student as s inner join	
-		cs340final_project.student_tutor as st
+		from student as s inner join	
+		student_tutor as st
 		on s.id = st.sid inner join
-		cs340final_project.tutor as t
+		tutor as t
 		on st.tid = t.id
 		where s.user_name = ?
 		order by t.lname, t.fname
@@ -323,10 +323,10 @@ if($_SESSION['user_type']=="tutor"){
 		select s.fname, s.lname, s.year_born, s.gender, 
 		s.start_date, s.end_date, s.max_rate, 
 		s.first_lang, s.second_lang, s.id 
-		from cs340final_project.student as s inner join	
-		cs340final_project.student_tutor as st
+		from student as s inner join	
+		student_tutor as st
 		on s.id = st.sid inner join
-		cs340final_project.tutor as t
+		tutor as t
 		on st.tid = t.id
 		where t.user_name = ?
 		order by s.lname, s.fname
@@ -406,11 +406,11 @@ if ($_SESSION["user_type"] == "student"){
 	$rate_name = "min_rate ";
 	$table_name = "tutor ";
 }
-$stmt_string = "SELECT fname, lname, year_born, gender, skype_id, start_date, end_date, $rate_name, first_lang, second_lang FROM cs340final_project.$table_name WHERE user_name = ?";
+$stmt_string = "SELECT fname, lname, year_born, gender, skype_id, start_date, end_date, $rate_name, first_lang, second_lang FROM $table_name WHERE user_name = ?";
 
 //debug statements
-echo $stmt_string . "<br>";
-echo $_SESSION['user'] . "<br>";
+//echo $stmt_string . "<br>";
+//echo $_SESSION['user'] . "<br>";
 
 //example query string
 //"SELECT fname, lname, year_born, gender, skype_id, start_date, end_date, min_rate, first_lang, second_lang FROM cs340final_project.tutor WHERE user_name = ?"

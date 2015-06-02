@@ -117,14 +117,14 @@ function db_login($user, $pass, $mysqli){
 	
 	//if student
 	if ($_POST["user_type"] == "student") {
-		if (!($stmt = $mysqli->prepare("SELECT password FROM cs340final_project.users as u, cs340final_project.student as s WHERE u.user_name = ? and s.user_name = ?"))) {
+		if (!($stmt = $mysqli->prepare("SELECT password FROM users2 as u, student as s WHERE u.user_name = ? and s.user_name = ?"))) {
 			echo "Error: Failed to check the database for this user.<br>";
 			return;
 		}
 	}
 	//if tutor, mirrored/similar code...
 	if ($_POST["user_type"] == "tutor") {
-		if (!($stmt = $mysqli->prepare("SELECT password FROM cs340final_project.users as u, cs340final_project.tutor as t WHERE u.user_name = ? and t.user_name = ?"))) {
+		if (!($stmt = $mysqli->prepare("SELECT password FROM users2 as u, tutor as t WHERE u.user_name = ? and t.user_name = ?"))) {
 			echo "Error: Failed to check the database for this user.<br>";
 			return;
 		}
@@ -167,7 +167,7 @@ function db_login($user, $pass, $mysqli){
 //  and then the new user will have access to main.php through a session variable
 function create_user($user, $pass, $mysqli, $user_type){
 
-	if (!($stmt = $mysqli->prepare("insert into cs340final_project.users(user_name, password) values (?, ?);"))) {
+	if (!($stmt = $mysqli->prepare("insert into users2(user_name, password) values (?, ?);"))) {
 		echo "Error: Failed to prepare to add user.<br>";	
 		return;
 	} else if (!$stmt->bind_param("ss", $user, $pass)) {
@@ -177,7 +177,7 @@ function create_user($user, $pass, $mysqli, $user_type){
 		echo "Error: Failed to add this user to the database.  The user may already exist.<br>";
 		return;
 	} else if ($user_type == "student") {
-		if (!($stmt = $mysqli->prepare("insert into cs340final_project.student(user_name, fname, lname, year_born, gender, skype_id, start_date, end_date, max_rate, first_lang, second_lang) values (?,?,?,?,?,?,?,?,?,?,?);"))) {
+		if (!($stmt = $mysqli->prepare("insert into student(user_name, fname, lname, year_born, gender, skype_id, start_date, end_date, max_rate, first_lang, second_lang) values (?,?,?,?,?,?,?,?,?,?,?);"))) {
 		//eg: 'studentUser1', 'John', 'Doe', 1980, 'm', 'jd', '2015-01-01', '2015-02-01', 20, 'English', 'Korean'
 			echo "Error: This user may already exist.<br>";	
 			return;
@@ -203,7 +203,7 @@ function create_user($user, $pass, $mysqli, $user_type){
 			return;
 		}
 	} else if ($user_type == "tutor") {
-		if (!($stmt = $mysqli->prepare("insert into cs340final_project.tutor(user_name, fname, lname, year_born, gender, skype_id, start_date, end_date, min_rate, first_lang, second_lang) values (?,?,?,?,?,?,?,?,?,?,?);"))) {
+		if (!($stmt = $mysqli->prepare("insert into tutor(user_name, fname, lname, year_born, gender, skype_id, start_date, end_date, min_rate, first_lang, second_lang) values (?,?,?,?,?,?,?,?,?,?,?);"))) {
 		//eg: 'studentUser1', 'John', 'Doe', 1980, 'm', 'jd', '2015-01-01', '2015-02-01', 20, 'English', 'Korean'
 			echo "Error: This user may already exist.<br>";	
 			return;

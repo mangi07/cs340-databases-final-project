@@ -55,7 +55,7 @@ if (!isset($_SESSION['user']) &&
 		include("db.php");
 		
 		if(!($stmt = $mysqli->prepare("
-			delete from cs340final_project.student_tutor
+			delete from student_tutor
 			where (sid,tid)=((select id from student where user_name = ?), ?)
 			limit 1
 		"))){
@@ -82,7 +82,7 @@ if (!isset($_SESSION['user']) &&
 		include("db.php");
 		
 		if(!($stmt = $mysqli->prepare("
-			delete from cs340final_project.student_tutor
+			delete from student_tutor
 			where (sid,tid)=(?,(select id from tutor where user_name = ?))
 			limit 1
 		"))){
