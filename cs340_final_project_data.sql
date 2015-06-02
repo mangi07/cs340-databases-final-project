@@ -78,6 +78,16 @@ where tutor.min_rate <
 (select max_rate from student where student.user_name = 'studentUser1_changed');
 -- Here, the minimum the tutor will accept is less than maximum that student is willing to pay.
 -- Additional/alternative conditions may be added by appending to the string that is passed to mysqli->prepare()
+-- ACTUALLY, MORE LIKE THIS, BUT SELECT MORE tutor COLUMNS FROM THE CREATED tb2 AND APPEND TO THE WHERE CLAUSE:
+select id1 from
+(select tutor.id as id1, tb1.id as id2 from tutor left join
+(select tutor.id from student inner join
+student_tutor
+on student.id = 1 inner join
+tutor on student_tutor.tid = tutor.id) as tb1
+on tutor.id = tb1.id) as tb2
+where id2 IS NULL;
+
 
 -- count the number of students that each tutor has:
 select tutor.fname, tutor.lname, count(tutor.user_name)
