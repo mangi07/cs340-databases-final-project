@@ -84,27 +84,33 @@ select fname, lname, year_born, gender, start_date, end_date,
 (select fname, lname, year_born, gender, start_date, end_date, 
 		min_rate, first_lang, second_lang, t.id, tb1.id as id2 
 		from tutor as t left join
-(select t.id from student inner join
+(select t.id from student as s inner join
 student_tutor as st
-on student.id = 1 inner join
-tutor as t on st.tid = t.id) as tb1
+on s.id = st.sid inner join
+tutor as t on st.tid = t.id
+where s.user_name = 's2') as tb1
 on t.id = tb1.id) as tb2
-where id2 IS NULL %s
+where id2 IS NULL AND gender = 'f' -- and variable other conditions depending on post variables
 ORDER BY lname, fname;
+
+
 
 --- SELECT fname, lname, year_born, gender, start_date, end_date, min_rate, first_lang, second_lang, id FROM tutor WHERE %s ORDER BY lname, fname
 
 -- count the number of students that each tutor has
 -- used to filter tutors
-select tutor.fname, tutor.lname, count(tutor.user_name)
+select tbl.* from
+(select tutor.fname, tutor.lname, tutor.id, count(tutor.user_name) as cnt
 from tutor inner join
 student_tutor
 on tutor.id = student_tutor.tid inner join
 student
 on student_tutor.tid = student.id
-where tutor.user_name = 'tutorUser1'
 group by tutor.user_name
-order by tutor.lname, tutor.fname;
+order by tutor.lname, tutor.fname) as tbl
+where tbl.cnt < 2
+;
+
 
 
 -- Example of updating a row in student (in php, use update_table method):

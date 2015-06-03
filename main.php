@@ -493,6 +493,7 @@ echo "
 		<p>Min Rate Per Hour: <input name="min_rate" type="number" min="10" max="30"></p>
 		<p>Tutor's First Language: <input name="first_lang" type="text"></p>
 		<p>Tutor's Second Language: <input name="second_lang" type="text"></p>
+		<p>View Tutors with less than <input name="num_students" type="number" min="1"> students.</p>
 		<p>Filter Tutors: <input type="submit" class="button" /></p>
 	</form>
 <?php endif; ?>	

@@ -51,21 +51,46 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	<?php 
 		//get tutors
 		$tutors = filter_tutor();
-		//additionally filter tutors by how many students each tutor has, if that post is set...
-		/*
-		-- count the number of students that each tutor has
-		-- used to filter tutors
-		select tutor.fname, tutor.lname, count(tutor.user_name)
-		from tutor inner join
-		student_tutor
-		on tutor.id = student_tutor.tid inner join
-		student
-		on student_tutor.tid = student.id
-		where tutor.user_name = 't1' -- maybe not have this line and just handle whatever in php
-										-- after getting counts on all tutors from this query
-		group by tutor.user_name
-		order by tutor.lname, tutor.fname;
-		*/
+		//show the number of students that each tutor has
+		if(isset($_POST['num_students'])){
+			include("db.php");
+			if (!($stmt = $mysqli->prepare("
+				select tbl.* from
+				(select tutor.fname, tutor.lname, tutor.id, count(tutor.user_name) as cnt
+				from tutor inner join
+				student_tutor
+				on tutor.id = student_tutor.tid inner join
+				student
+				on student_tutor.tid = student.id
+				group by tutor.user_name
+				order by tutor.lname, tutor.fname) as tbl
+				where tbl.cnt < ?
+			"))) {
+			echo "Prepare failed" . $stmt->errno . " " . $stmt->error;
+		} else {
+			if($_POST['num_students'] == "")
+				$num = 0;
+			else
+				$num = $_POST['num_students'];
+			
+			$stmt->bind_param("s", $num);
+			$stmt->execute();
+			$stmt->bind_result($fname, $lname, $id, $cnt);
+			
+			echo "<p>For tutors that have less than " . $num . " students:</p>";
+			echo "<table><tr><th colspan='4'>Number of Students Each Tutor Has</tr>\n
+					<tr><th>First Name<th>Last Name<th>ID<th>Count";
+			while ($stmt->fetch()){
+				echo "<tr><td>" . $fname . "<td>" . $lname . "<td>" . $id . "<td>" . $cnt;
+			}
+			echo "</table>";
+			$stmt->close();
+			
+		}
+
+
+		}
+		
 	?>
 	
 	<!-- display tutors to user -->
@@ -173,13 +198,15 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 			(select fname, lname, year_born, gender, start_date, end_date, 
 					min_rate, first_lang, second_lang, t.id, tb1.id as id2 
 					from tutor as t left join
-			(select t.id from student inner join
+			(select t.id from student as s inner join
 			student_tutor as st
-			on student.id = 1 inner join
-			tutor as t on st.tid = t.id) as tb1
+			on s.id = st.sid inner join
+			tutor as t on st.tid = t.id
+			where s.user_name = 's2') as tb1
 			on t.id = tb1.id) as tb2
 			where id2 IS NULL AND %s
 			ORDER BY lname, fname;
+
 		", $cond_str);
 		
 
