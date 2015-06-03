@@ -51,6 +51,21 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	<?php 
 		//get tutors
 		$tutors = filter_tutor();
+		//additionally filter tutors by how many students each tutor has, if that post is set...
+		/*
+		-- count the number of students that each tutor has
+		-- used to filter tutors
+		select tutor.fname, tutor.lname, count(tutor.user_name)
+		from tutor inner join
+		student_tutor
+		on tutor.id = student_tutor.tid inner join
+		student
+		on student_tutor.tid = student.id
+		where tutor.user_name = 't1' -- maybe not have this line and just handle whatever in php
+										-- after getting counts on all tutors from this query
+		group by tutor.user_name
+		order by tutor.lname, tutor.fname;
+		*/
 	?>
 	
 	<!-- display tutors to user -->
@@ -149,11 +164,25 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 			$params[] = $_POST['second_lang'];
 		}
 		
+		
 		$cond_str = implode(" AND ", $conditions);
 		
-		//USE OUTER JOIN?? OR NOT IN TO ELIMINATE TUTORS THAT ARE ALREADY IN RELATIONSHIP TO THE GIVEN STUDENT
-		$sql = sprintf("SELECT fname, lname, year_born, gender, start_date, end_date, min_rate, first_lang, second_lang, id FROM tutor WHERE %s ORDER BY lname, fname", $cond_str);
+		$sql = sprintf("
+			select fname, lname, year_born, gender, start_date, end_date, 
+					min_rate, first_lang, second_lang, id from
+			(select fname, lname, year_born, gender, start_date, end_date, 
+					min_rate, first_lang, second_lang, t.id, tb1.id as id2 
+					from tutor as t left join
+			(select t.id from student inner join
+			student_tutor as st
+			on student.id = 1 inner join
+			tutor as t on st.tid = t.id) as tb1
+			on t.id = tb1.id) as tb2
+			where id2 IS NULL AND %s
+			ORDER BY lname, fname;
+		", $cond_str);
 		
+
 		if (!($stmt = $mysqli->prepare($sql))) {
 			echo "Prepare failed" . $stmt->errno . " " . $stmt->error;
 		} else {

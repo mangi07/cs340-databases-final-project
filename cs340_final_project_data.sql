@@ -79,17 +79,23 @@ where tutor.min_rate <
 -- Here, the minimum the tutor will accept is less than maximum that student is willing to pay.
 -- Additional/alternative conditions may be added by appending to the string that is passed to mysqli->prepare()
 -- ACTUALLY, MORE LIKE THIS, BUT SELECT MORE tutor COLUMNS FROM THE CREATED tb2 AND APPEND TO THE WHERE CLAUSE:
-select id1 from
-(select tutor.id as id1, tb1.id as id2 from tutor left join
-(select tutor.id from student inner join
-student_tutor
+select fname, lname, year_born, gender, start_date, end_date, 
+		min_rate, first_lang, second_lang, id from
+(select fname, lname, year_born, gender, start_date, end_date, 
+		min_rate, first_lang, second_lang, t.id, tb1.id as id2 
+		from tutor as t left join
+(select t.id from student inner join
+student_tutor as st
 on student.id = 1 inner join
-tutor on student_tutor.tid = tutor.id) as tb1
-on tutor.id = tb1.id) as tb2
-where id2 IS NULL;
+tutor as t on st.tid = t.id) as tb1
+on t.id = tb1.id) as tb2
+where id2 IS NULL %s
+ORDER BY lname, fname;
 
+--- SELECT fname, lname, year_born, gender, start_date, end_date, min_rate, first_lang, second_lang, id FROM tutor WHERE %s ORDER BY lname, fname
 
--- count the number of students that each tutor has:
+-- count the number of students that each tutor has
+-- used to filter tutors
 select tutor.fname, tutor.lname, count(tutor.user_name)
 from tutor inner join
 student_tutor
