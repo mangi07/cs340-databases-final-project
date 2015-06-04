@@ -208,7 +208,7 @@ select sum(payments.total) as total from
   select ((time_to_sec(timediff(end_time, start_time))/3600)*rate) as total
   from sessions
   where (tid, sid) = ((select id from tutor where user_name = 't1' limit 1),
-						(select id from tutor where user_name = 's1' limit 1))
+						(select id from student where user_name = 's1' limit 1))
   
 ) as payments);
 -- Example result: 4.6417

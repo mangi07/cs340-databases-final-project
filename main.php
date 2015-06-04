@@ -300,6 +300,7 @@ if($_SESSION['user_type']=="student"){
 	}
 	echo "</table>";
 	
+	//dropdown menu to remove a tutor
 	echo "<p>REMOVE TUTOR RELATIONSHIP HERE</p>";
 	echo "<form method='post' action='remove_relationship.php'>\n
 		<select name='tutor_id'>";
@@ -312,6 +313,22 @@ if($_SESSION['user_type']=="student"){
 		<input type='hidden' name='full_name' value='$tutor_name'></input>\n
 		<input type='submit'></input>\n
 	</form>";
+	
+	//dropdown menu to work on scheduling with a tutor
+	echo "<p>SCHEDULING WITH TUTOR HERE</p>";
+	echo "<form method='post' action='availability.php'>\n
+		<select name='id'>";
+			foreach ($tutors as $key => $val){
+				$tutor_id = $val['id'];
+				$tutor_name = $val['fname'] . " " . $val['lname'];
+				echo "<option value='$tutor_id'>$tutor_name</option>\n";
+			}
+	echo "</select>\n
+		<input type='hidden' name='full_name' value='$tutor_name'></input>\n
+		<input type='hidden' name='case' value='view_intersect'></input>\n
+		<input type='submit'></input>\n
+	</form>";
+	//do this same kind of dropdown for a tutor on main.php
 		
 }
 
@@ -385,7 +402,11 @@ if($_SESSION['user_type']=="tutor"){
 }
 ?>
 
-
+<!-- VIEW AND EDIT CURRENT SCHEDULE -->
+<form method="post" action="availability.php">
+	<input type="hidden" name="case" value="view_edit_self">
+	<p><input type="submit" value="View And Edit Your Schedule" class="button"></p>
+</form>
 
 
 <!-- VIEW PERSONAL DATA -->
@@ -408,9 +429,6 @@ if ($_SESSION["user_type"] == "student"){
 }
 $stmt_string = "SELECT fname, lname, year_born, gender, skype_id, start_date, end_date, $rate_name, first_lang, second_lang FROM $table_name WHERE user_name = ?";
 
-//debug statements
-//echo $stmt_string . "<br>";
-//echo $_SESSION['user'] . "<br>";
 
 //example query string
 //"SELECT fname, lname, year_born, gender, skype_id, start_date, end_date, min_rate, first_lang, second_lang FROM cs340final_project.tutor WHERE user_name = ?"
@@ -473,7 +491,7 @@ echo "
 
 	</div>
 
-	
+<!--  -->
 	
 	
 <!-- STUDENT FILTER TUTORS -->

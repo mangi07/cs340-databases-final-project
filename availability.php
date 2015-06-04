@@ -1,17 +1,88 @@
+<?php
+session_start();
+
+/*
+AUTHOR:	Benjamin R. Olson
+DATE:	May 23, 2015
+COURSE: CS 340 - Web Development, Oregon State University
+*/
+
+
+//check for login
+if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
+	echo "<div class='box'>You must be logged in to view this page.<br>
+		<button onclick='window.location.href = \"index.php\"' class='button'>Log In</button></div>";
+	die();
+}
+
+?>
+
+
 <!DOCTYPE html>
 
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <title>CS 340 Sched Test - Ben R. Olson</title>
+	<meta charset="utf-8"/>
+	<title>CS 340 Final Project - Ben R. Olson</title>
+	
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	
+	<!--jQuery link needed BEFORE trying to load calendar plugin based on jQuery!!-->
+	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+	
 </head>
+<body class="centered">
 
-<body>
-  <?php
-    ini_set('display_errors', 'On');
+
+<?php
+    ini_set('display_errors', 'On');	
+
+	echo "<div class='box'>";
+	echo "<h1>ESL Tutoring Portal</h1>";
+	echo "<h3>Created By Ben R. Olson</h3>";
+	echo "<h2>Logged In As \"$_SESSION[user]\"</h2>";
+	echo "<h2>Account Type: $_SESSION[user_type]</h2>";
+	echo "</div>";
+
 
     include ("db.php");
 	
+	//debug
+	//case: view_intersect, view_edit_self
+	if(isset($_POST['case'])){
+		if($_POST['case']=='view_intersect'){
+			//check some more posts here:
+			$other_id;
+			if(isset($_POST['id'])){
+				$other_id = $_POST['id'];
+			}else{
+				//error message, link to main, and then...
+				die();
+			}
+			//edit args to functions
+			$your_schedule = get_schedule();
+			//check variable is not empty or something
+			$other_schedule = get_schedule();
+			//check variable is not empty or something
+			$intersect = find_sched_intersect($_POST['user'],$_POST['']);
+			//show schedules and intersects with show_sched() function to write below
+		}
+		if($_POST['case']=='view_edit_self'){
+			//add form here on this page to submit to this page with this case
+			//do that: edit args to functions
+			//get post from this page submitting to itself
+			insert_weekly_sched();//only if post variables for schedule are correct
+			$your_schedule = get_schedule();
+			//check variable is not empty or something
+			//show your schedule with show_sched() function to write below
+		}
+	}else{
+		//error message here
+	}
+	
+	//link back to main.php
+	
+	/*
 	$sched = array();
 	$sched[0] = '000001111100000111110000011111000001111100000000';
 	$sched[1] = '111110000011111000001111100000111110000011111111';
@@ -24,17 +95,21 @@
 	
 	$user_name = 'frankie';
 	$user2 = 'bobby';
+	*/
+	
 	/*
 	insert_weekly_sched($sched, $user2);
 	*/
 	
-	$sched = find_sched_intersect($user_name, $user2); //edit this function
+	/*
+	$sched = find_sched_intersect($user_name, $user2);
 	echo "INTERSECTION:\n";
 	var_dump($sched);
 	
 	//try displaying schedule (receive as int, but then convert to binary string
     echo "USER SCHEDULE: \n";
 	var_dump(get_schedule($user_name));
+	*/
 	
   ?>
 
@@ -43,7 +118,7 @@
 <?php
 
   /*
-    Pre-conditions: $stmt must exist as object connecting to database
+    Pre-conditions: $mysqli must exist as object connecting to database
 	Returns: 
   */
   function get_schedule($user_name){
@@ -56,7 +131,7 @@
 	
 	//eventually, add where __ = ? to prepared statement
 	//  to indicate which student
-    if(!($stmt = $mysqli->prepare("select sun, mon, tues, wed, thurs, fri, sat from sched where user_name = ?;") )){
+    if(!($stmt = $mysqli->prepare("select sun, mon, tues, wed, thurs, fri, sat from availability where user_name = ?") )){
 	  echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 	}
 	if(!($stmt->bind_param("s",$user_name))){
@@ -93,9 +168,11 @@
 	
 	//join tables between two users
 	if(!($stmt = $mysqli->prepare("select tb1.*, tb2.* from
-		(select sun, mon, tues, wed, thurs, fri, sat from sched where user_name = ?) as tb1
+		(select sun, mon, tues, wed, thurs, fri, sat from availability where user_name = ?) as tb1
 		inner join
-		(select sun, mon, tues, wed, thurs, fri, sat from sched where user_name = ?) as tb2
+		(select sun, mon, tues, wed, thurs, fri, sat from availability where user_name = (
+			select user_name from users2 where id = ? limit 1
+		)) as tb2
 		on 1;") )){
 		echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 	}
