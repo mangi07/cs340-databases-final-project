@@ -30,10 +30,24 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	<!--jQuery link needed BEFORE trying to load calendar plugin based on jQuery!!-->
 	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
 	
+	<!-- script for function show_sched -->
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".self").click(function(){
+				if($(this).attr('class')=="self on"){
+					$(this).attr('class', 'self off');
+				}else if($(this).attr('class')=="self off"){
+					$(this).attr('class', 'self on');
+				}
+			});
+		});
+		//add function to make day strings from self schedule 
+		//  and submit self and check post to call php insert_weekly_sched()
+		//  so check lines 80s...around there
+	</script>
+	
 </head>
 <body class="centered">
-
-<!-- Form to enter/edit schedule -->
 
 
 <?php
@@ -66,15 +80,11 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 			}
 			
 			$your_schedule = get_schedule("yours");
-			var_dump($your_schedule);
-			show_sched($your_schedule);
-			
 			$other_schedule = get_schedule("other's");
-			show_sched($other_schedule);
 			
 			//show your schedule and the other party's schedule
-			show_sched($your_schedule);
-			show_sched($other_schedule);
+			show_sched($your_schedule, "yours");
+			show_sched($other_schedule, "other's");
 			
 			$intersect = find_sched_intersect();
 			//show schedules and intersects with show_sched() function to write below
@@ -262,22 +272,33 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
   }
   
   /*takes 7-element schedule array and shows it to the user if none of the elements are null*/
-  function show_sched($sched_arr){
+  function show_sched($sched_arr, $whose){
 	foreach($sched_arr as $key => $val){
 		if($val == null){
 			echo "<p>No schedule to show.<br>\n";
 			return;
 		}
 	}
-	echo "<div class='day-row'>hello";
-	foreach($sched_arr as $key => $str){
-		var_dump($str);
-		for($i = 0; $i < count($str); $i++){
-			if($str[$i] == '0') echo "<div class='off'>X</div>";
-			if($str[$i] == '1') echo "<div class='on'>_</div>";
-		}
+	
+	//set toggle ability on time slots if showing only the user's own schedule
+	if($whose == "yours"){
+		$ownership = "self";
+	}else{
+		$ownership = "";
 	}
-	echo "</div";
+	
+	foreach($sched_arr as $key => $str){
+		echo "<div class='dayrow'>";
+		for($i = 0; $i < strlen($str); $i++){
+			if($str[$i] == '0') echo "<div class='$ownership off'></div>";
+			if($str[$i] == '1') echo "<div class='$ownership on'></div>";
+		}
+		echo "</div>";
+	}
+	//add button to submit for editing
+	if($whose == "yours"){
+		
+	}
 	
 	
 	return;
