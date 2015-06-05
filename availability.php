@@ -33,6 +33,8 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 </head>
 <body class="centered">
 
+<!-- Form to enter/edit schedule -->
+
 
 <?php
     ini_set('display_errors', 'On');	
@@ -56,15 +58,25 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 			if(isset($_POST['id'])){
 				$other_id = $_POST['id'];
 			}else{
-				//error message, link to main, and then...
+				//error message
+				
+				///link to main, and then...
+				
 				die();
 			}
-			//edit args to functions
-			$your_schedule = get_schedule();
-			//check variable is not empty or something
-			$other_schedule = get_schedule();
-			//check variable is not empty or something
-			$intersect = find_sched_intersect($_POST['user'],$_POST['']);
+			
+			$your_schedule = get_schedule("yours");
+			var_dump($your_schedule);
+			show_sched($your_schedule);
+			
+			$other_schedule = get_schedule("other's");
+			show_sched($other_schedule);
+			
+			//show your schedule and the other party's schedule
+			show_sched($your_schedule);
+			show_sched($other_schedule);
+			
+			$intersect = find_sched_intersect();
 			//show schedules and intersects with show_sched() function to write below
 		}
 		if($_POST['case']=='view_edit_self'){
@@ -80,7 +92,6 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		//error message here
 	}
 	
-	//link back to main.php
 	
 	/*
 	$sched = array();
@@ -113,28 +124,43 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	
   ?>
 
-  
+	<!-- link back to main.php -->
+	<div class="button"><a href="main.php">Back To Main</a></div>
   
 <?php
 
   /*
     Pre-conditions: $mysqli must exist as object connecting to database
-	Returns: 
+	Arguments: $user_part is either "yours" or "other's"
+	Returns: 7-element array to represent weekly schedule, each element being a daily string of 48 on/off time slots
   */
-  function get_schedule($user_name){
+  function get_schedule($user_party){
     
+	//create sql query string based on whose schedule we're looking for
+	$sql = "select sun, mon, tues, wed, thurs, fri, sat from availability where ";
+	$var; //either the user's user_name or the other party's id
+	$bind; // either "s" or "i"
+	if($user_party == "yours"){
+		$sql .= "user_name = ?";
+		$var = $_SESSION['user'];
+		$bind = "s";
+	}else if($user_party == "other's"){
+		$sql .= "user_name = (select user_name from users2 where id = ?)";
+		$var = $_POST['id'];
+		$bind = "i";
+	}
+	var_dump($sql);
+	
 	global $mysqli;
 	
 	$index = 0;
 	$val = NULL;
 	$sched = array();
 	
-	//eventually, add where __ = ? to prepared statement
-	//  to indicate which student
-    if(!($stmt = $mysqli->prepare("select sun, mon, tues, wed, thurs, fri, sat from availability where user_name = ?") )){
+    if(!($stmt = $mysqli->prepare($sql))){
 	  echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 	}
-	if(!($stmt->bind_param("s",$user_name))){
+	if(!($stmt->bind_param($bind,$var))){
 	  echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
 	}
 	if(!$stmt->execute()){
@@ -159,7 +185,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	  where each day has 48 1/2-hour time slots
 	  represented as a binary string (0 unavailabe, 1 available).
   */
-  function find_sched_intersect($user1, $user2){
+  function find_sched_intersect($user1, $user2_id){
   
     global $mysqli;
 	$index = 0;
@@ -176,7 +202,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		on 1;") )){
 		echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 	}
-	if(!($stmt->bind_param("ss",$user1,$user2))){
+	if(!($stmt->bind_param("ss",$user1,$user2_id))){
 	  echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
 	}
 	if(!$stmt->execute()){
@@ -233,6 +259,29 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
   /*borrowed from mcampa at gmail dot com, posted on http://php.net/manual/en/function.decbin.php*/
   function d2b($n) {
     return str_pad(decbin($n), 48, "0", STR_PAD_LEFT);
+  }
+  
+  /*takes 7-element schedule array and shows it to the user if none of the elements are null*/
+  function show_sched($sched_arr){
+	foreach($sched_arr as $key => $val){
+		if($val == null){
+			echo "<p>No schedule to show.<br>\n";
+			return;
+		}
+	}
+	echo "<div class='day-row'>hello";
+	foreach($sched_arr as $key => $str){
+		var_dump($str);
+		for($i = 0; $i < count($str); $i++){
+			if($str[$i] == '0') echo "<div class='off'>X</div>";
+			if($str[$i] == '1') echo "<div class='on'>_</div>";
+		}
+	}
+	echo "</div";
+	
+	
+	return;
+  
   }
 
 ?>

@@ -328,7 +328,6 @@ if($_SESSION['user_type']=="student"){
 		<input type='hidden' name='case' value='view_intersect'></input>\n
 		<input type='submit'></input>\n
 	</form>";
-	//do this same kind of dropdown for a tutor on main.php
 		
 }
 
@@ -398,7 +397,22 @@ if($_SESSION['user_type']=="tutor"){
 		<input type='hidden' name='full_name' value='$student_name'></input>\n
 		<input type='submit'></input>\n
 	</form>";
-		
+	
+	//dropdown menu to work on scheduling with a student
+	echo "<p>SCHEDULING WITH STUDENT HERE</p>";
+	echo "<form method='post' action='availability.php'>\n
+		<select name='id'>";
+			foreach ($students as $key => $val){
+				$student_id = $val['id'];
+				$student_name = $val['fname'] . " " . $val['lname'];
+				echo "<option value='$student_id'>$student_name</option>\n";
+			}
+	echo "</select>\n
+		<input type='hidden' name='full_name' value='$student_name'></input>\n
+		<input type='hidden' name='case' value='view_intersect'></input>\n
+		<input type='submit'></input>\n
+	</form>";
+	
 }
 ?>
 

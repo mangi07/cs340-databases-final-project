@@ -127,7 +127,7 @@ update users set user_name = 'studentUser1_changed', password = 'studentPassword
 -- Query to insert a weekly schedule for a given tutor/student.
 insert into availability(
 	  user_name, sun, mon, tues, wed, thurs, fri, sat) values (
-	  'tutorUser1', 
+	  't1', 
 	  '000001111100000111110000011111000001111100000000', 
 	  '111110000011111000001111100000111110000011111111', 
 	  '000001111100000111110000011111000001111100000000', 

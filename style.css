@@ -65,4 +65,18 @@ a:active {color:#FFF;}  /* selected link */
 	color:red;
 }
 
+.on, .off{
+	width:(100/7)%;
+}
 
+.on{
+	background-color:dark-green;
+}
+
+.off{
+	background-color:light-grey;
+}
+
+.day-row{
+	height:20px;
+}
