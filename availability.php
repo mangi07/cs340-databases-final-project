@@ -60,41 +60,18 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 			
 			$("#edit_self").click(function(){
 				
-				//var data = {};
 				var data = getSched();
-				//debug
-				console.log(data);
 				
 				sched = JSON.stringify(data);
 				console.log(sched);
 				
 				$("#sched").attr('value',sched);;
 				
-				//var data = {"sched":sched};
-				//var data = {'test_json':[1, 'okay', 3]};
-				//console.log(data);
-				//var data = JSON.stringify(data);
-				
-				/*
-				$.ajax({
-				   url : 'availability.php',
-				   type : 'POST',
-				   contentType: 'text',
-				   dataType : 'text',
-				   cache: false,
-				   data: "test ajax",
-				   success : function(){alert('Saved');},
-				   error: function(){alert('Did not reach server');}
-				});
-				*/
-				
 			});
 			
 			
 		});
-		//add function to make day strings from self schedule 
-		//  and submit self and check post to call php insert_weekly_sched()
-		//  so check lines 80s...around there
+
 	</script>
 	
 </head>
@@ -113,40 +90,41 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 
 
     include ("db.php");
-	
-	
-	//debug
 
 
 	if(isset($_POST['sched'])){
-		//echo "Post response: ";
-		//var_dump($_POST);
 		$sched = json_decode($_POST['sched']);
-		//var_dump($sched);
 		update_weekly_sched($sched);
 	}
 	
-	
 	$your_schedule = get_schedule("yours");
-	if($your_schedule == null){
+	
+	if(in_array(null, $your_schedule)){
 		$sched = array();
-		for($i = 0; $i < 48; $i++){
+		for($i = 0; $i < 7; $i++){
 			//fill schedule with timeslots all off
 			$sched[] = "000000000000000000000000000000000000000000000000";
 		}
+		
 		insert_weekly_sched($sched);
+		$your_schedule = get_schedule("yours");
 	}
+	
+	echo "<h3>Your Weekly Availability (time slots available are shown in green)</h3>";
 	show_sched($your_schedule, "yours");
 	
-	if(isset($_POST['other_party_name'])){
+	if(isset($_POST['other_party_name']) && $_POST['other_party_name'] != ""){
 		$other_schedule = get_schedule("other's");
+		echo "<h3>Tutor's ($_POST[other_party_name]) Weekly Availability (time slots available are shown in green)</h3>";
 		show_sched($other_schedule, "other's");
 		$intersect = find_sched_intersect($_SESSION['user'], $_POST['other_id']);
-		show_sched($intersect);
+		echo "<h3>Schedule Intersect (Times that both of you have are shown in green.)</h3>";
+		show_sched($intersect, "other's");
+	}else{
+		echo "<p>Try to find and request tutors to work on scheduling with.</p>\n
+				<p>Go to the main page, filter for tutors, and wait for them to accept you.</p>\n
+				<p>Then come back here with the selected tutor to see where your schedules intersect.</p>";
 	}
-
-
-	//check variable is not empty or something
 
 	
 	
@@ -203,7 +181,9 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		$var = $_SESSION['user'];
 		$bind = "s";
 	}else if($user_party == "other's"){
-		$sql .= "user_name = (select user_name from users2 where id = ?)";
+		if($_SESSION['user_type']=='student'){$user_type='tutor';}
+		if($_SESSION['user_type']=='tutor'){$user_type='student';}
+		$sql .= "user_name = (select user_name from $user_type where id = ?)";
 		$var = $_POST['other_id'];
 		$bind = "i";
 	}
@@ -249,12 +229,16 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	$intersect = array();
 	$d = array();
 	
+	//figure out what table to use for the non-user's schedule
+	if($_SESSION['user_type']=='student'){$user_type='tutor';}
+	if($_SESSION['user_type']=='tutor'){$user_type='student';}
+	
 	//join tables between two users
 	if(!($stmt = $mysqli->prepare("select tb1.*, tb2.* from
 		(select sun, mon, tues, wed, thurs, fri, sat from availability where user_name = ?) as tb1
 		inner join
 		(select sun, mon, tues, wed, thurs, fri, sat from availability where user_name = (
-			select user_name from users2 where id = ? limit 1
+			select user_name from $user_type where id = ? limit 1
 		)) as tb2
 		on 1;") )){
 		echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
@@ -299,10 +283,6 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
   function insert_weekly_sched(&$days){
     global $mysqli;
 	
-	//debug
-	echo "in insert_weekly_sched: ";
-	var_dump($days);
-	
     if(!($stmt = $mysqli->prepare("insert into availability(
 	  user_name, sun, mon, tues, wed, thurs, fri, sat) values (
 	  ?, ?, ?, ?, ?, ?, ?, ?)") )){
@@ -330,10 +310,6 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
   function update_weekly_sched(&$days){
     global $mysqli;
 	
-	//debug
-	echo "in update_weekly_sched: ";
-	var_dump($days);
-	
     if(!($stmt = $mysqli->prepare("update availability 
 					set sun =   ?,
 						mon =   ?,
@@ -355,13 +331,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	$stmt->close();
   }
   
-  
-  //PROBABLY NOT USING THIS FOLLOWING FUNCTION:
-  /*borrowed from mcampa at gmail dot com, posted on http://php.net/manual/en/function.decbin.php*/
-  //function d2b($n) {
-  //  return str_pad(decbin($n), 48, "0", STR_PAD_LEFT);
-  //}
-  
+    
   /*takes 7-element schedule array and shows it to the user if none of the elements are null*/
   function show_sched($sched_arr, $whose){
 	foreach($sched_arr as $key => $val){
@@ -382,6 +352,8 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		echo "<div class='sched'>";
 		echo "<div class='$ownership dayrow'>";
 		for($i = 0; $i < strlen($str); $i++){
+			//add labels to week rows here to identify time slots
+			$hover_text = "" + ;
 			if($str[$i] == '0') echo "<div class='$ownership off'></div>";
 			if($str[$i] == '1') echo "<div class='$ownership on'></div>";
 		}
@@ -394,7 +366,12 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		echo "<button id='edit_self' class='button'>Save Changes</button>";
 		
 		echo "<form action='availability.php' method='post'>\n
-				<input id='sched' type='hidden' name='sched' value=''>
+				<input id='sched' type='hidden' name='sched' value=''>\n";
+		if(isset($_POST['other_party_name'])){
+			echo "<input type='hidden' name='other_party_name' value='$_POST[other_party_name]'>\n";
+			echo "<input type='hidden' name='other_id' value='$_POST[other_id]'>\n";
+		}
+		echo "
 				<p><input type='submit' id='edit_self' class='button'></p>\n
 			</form>";
 	}
