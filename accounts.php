@@ -101,7 +101,7 @@ function check_fields($user, $pass){
 		if ($_POST["first_lang"]=="") {echo "Error: First Language is required.<br>"; $checks_passed = false;}
 		if ($_POST["second_lang"]=="") {echo "Error: Second Language is required.<br>"; $checks_passed = false;}
 	}
-	//additional error checking on some fields using regular expressions...add it
+	//additional error checking on some fields using regular expressions could be added here
 	
 	
 	return $checks_passed;
@@ -110,10 +110,6 @@ function check_fields($user, $pass){
 //if the username exists and the password is correct,
 //  this will allow user to access main.php
 function db_login($user, $pass, $mysqli){
-	//MODIFY THIS SELECT TO MAKE SURE IT'S THE CORRECT TYPE OF user
-	//  so a user doesn't accidentally fill out the wrong section
-	//  and get sent to the wrong type of user interface.
-	//  Then, check the create user stuff - it actually worked - why?
 	
 	//if student
 	if ($_POST["user_type"] == "student") {

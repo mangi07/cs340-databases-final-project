@@ -1,4 +1,8 @@
 
+-- AUTHOR:	Benjamin R. Olson
+-- DATE:	June 6, 2015
+-- COURSE: CS 340 - Introduction to Databases, Oregon State University
+
 
 DROP TABLE IF EXISTS student_tutor;
 DROP TABLE IF EXISTS student_wants_tutor;

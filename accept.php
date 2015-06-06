@@ -4,7 +4,7 @@ session_start();
 /*
 AUTHOR:	Benjamin R. Olson
 DATE:	May 23, 2015
-COURSE: CS 340 - Web Development, Oregon State University
+COURSE: CS 340 - Introduction to Databases, Oregon State University
 */
 
 
@@ -43,7 +43,6 @@ if (!isset($_SESSION['user']) &&
 	echo "</div>";
 ?>
 
-	<!-- <div onclick="window.location.href = 'logout.php'" class="button">Log Out</div> -->
 	<div class="button"><a href="logout.php">Log Out</a></div>
 
 

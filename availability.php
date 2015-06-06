@@ -4,7 +4,7 @@ session_start();
 /*
 AUTHOR:	Benjamin R. Olson
 DATE:	May 23, 2015
-COURSE: CS 340 - Web Development, Oregon State University
+COURSE: CS 340 - Introduction to Databases, Oregon State University
 */
 
 
@@ -92,7 +92,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
     include ("db.php");
 
 
-	if(isset($_POST['sched'])){
+	if(isset($_POST['sched']) && $_POST['sched'] != ""){
 		$sched = json_decode($_POST['sched']);
 		update_weekly_sched($sched);
 	}
@@ -113,9 +113,9 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	echo "<h3>Your Weekly Availability (time slots available are shown in green)</h3>";
 	show_sched($your_schedule, "yours");
 	
-	if(isset($_POST['other_party_name']) && $_POST['other_party_name'] != ""){
+	if(isset($_POST['other_id']) && $_POST['other_id'] != ""){
 		$other_schedule = get_schedule("other's");
-		echo "<h3>Tutor's ($_POST[other_party_name]) Weekly Availability (time slots available are shown in green)</h3>";
+		echo "<h3>Other Party's Weekly Availability (time slots available are shown in green)</h3>";
 		show_sched($other_schedule, "other's");
 		$intersect = find_sched_intersect($_SESSION['user'], $_POST['other_id']);
 		echo "<h3>Schedule Intersect (Times that both of you have are shown in green.)</h3>";
@@ -126,37 +126,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 				<p>Then come back here with the selected tutor to see where your schedules intersect.</p>";
 	}
 
-	
-	
-	//debug
-	/*
-	$sched = array();
-	$sched[0] = '000001111100000111110000011111000001111100000000';
-	$sched[1] = '111110000011111000001111100000111110000011111111';
-	$sched[2] = '000001111100000111110000011111000001111100000000';
-	$sched[3] = '111110000011111000001111100000111110000011111111';
-	$sched[4] = '000001111100000111110000011111000001111100000000';
-	$sched[5] = '111110000011111000001111100000111110000011111111';
-	$sched[6] = '000001111100000111110000011111000001111111111111';
-	
-	
-	$user_name = 'frankie';
-	$user2 = 'bobby';
-	
-	
-	echo "debug line 160: ";
-	insert_weekly_sched($sched);
-	*/
-	
-	/*
-	$sched = find_sched_intersect($user_name, $user2);
-	echo "INTERSECTION:\n";
-	var_dump($sched);
-	
-	//try displaying schedule (receive as int, but then convert to binary string
-    echo "USER SCHEDULE: \n";
-	var_dump(get_schedule($user_name));
-	*/
+
 	
   ?>
 
@@ -348,31 +318,41 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		$ownership = "";
 	}
 	
+	$day_names = ["Sun.","Mon.","Tues.","Wed.","Thurs.","Fri.","Sat."];
 	foreach($sched_arr as $key => $str){
 		echo "<div class='sched'>";
-		echo "<div class='$ownership dayrow'>";
+		echo "<div class='$ownership dayrow'><span class='dayname'>$day_names[$key]</span>";
 		for($i = 0; $i < strlen($str); $i++){
 			//add labels to week rows here to identify time slots
-			$hover_text = "" + ;
-			if($str[$i] == '0') echo "<div class='$ownership off'></div>";
-			if($str[$i] == '1') echo "<div class='$ownership on'></div>";
+			$hours_start = floor($i/2);
+			if($i%2==0){
+				$minutes_start = "00";
+				$minutes_end = "30";
+				$hours_end = $hours_start;
+			}else{
+				$minutes_start = "30";
+				$minutes_end = "00";
+				$hours_end = $hours_start + 1;
+			}
+			$hover_text = "$day_names[$key], $hours_start:$minutes_start to $hours_end:$minutes_end";
+			if($str[$i] == '0') echo "<div class='$ownership off' title='$hover_text'></div>";
+			if($str[$i] == '1') echo "<div class='$ownership on' title='$hover_text'></div>";
 		}
 		echo "</div>";
 		echo "</div>";
 	}
 	//button to submit changes made to the user's schedule
 	if($whose == "yours"){
-		//maybe have this be a form that jquery can manipulate
+		//this allows jquery to manipulate the form
 		echo "<button id='edit_self' class='button'>Save Changes</button>";
 		
 		echo "<form action='availability.php' method='post'>\n
 				<input id='sched' type='hidden' name='sched' value=''>\n";
-		if(isset($_POST['other_party_name'])){
-			echo "<input type='hidden' name='other_party_name' value='$_POST[other_party_name]'>\n";
+		if(isset($_POST['other_id'])){
 			echo "<input type='hidden' name='other_id' value='$_POST[other_id]'>\n";
 		}
 		echo "
-				<p><input type='submit' id='edit_self' class='button'></p>\n
+				<p><input type='submit' id='edit_self' class='button' title='Click on \"Save Changes\" before \"Submit\" for changes to persist!'></p>\n
 			</form>";
 	}
 	

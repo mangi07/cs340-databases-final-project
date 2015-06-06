@@ -4,7 +4,7 @@ session_start();
 /*
 AUTHOR:	Benjamin R. Olson
 DATE:	May 23, 2015
-COURSE: CS 340 - Web Development, Oregon State University
+COURSE: CS 340 - Introduction to Databases, Oregon State University
 */
 
 
@@ -20,8 +20,6 @@ if (!isset($_SESSION['user']) &&
 
 if(isset($_POST["start"]) && isset($_POST["end"]) && isset($_POST["id"])){
 	
-	//debug
-	//echo "********$_POST[start]*******$_POST[end]***********$_POST[id]********";
 	
 	include("db.php");
 	if(!($stmt = $mysqli->prepare("

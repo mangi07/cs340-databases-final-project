@@ -4,7 +4,7 @@ session_start();
 /*
 AUTHOR:	Benjamin R. Olson
 DATE:	May 31, 2015
-COURSE: CS 290 - Web Development, Oregon State University
+COURSE: CS 340 - Introduction to Databases, Oregon State University
 */
 
 //check for login

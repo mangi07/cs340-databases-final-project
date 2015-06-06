@@ -4,7 +4,7 @@ session_start();
 /*
 AUTHOR:	Benjamin R. Olson
 DATE:	May 23, 2015
-COURSE: CS 340 - Web Development, Oregon State University
+COURSE: CS 340 - Introduction to Databases, Oregon State University
 */
 
 
@@ -54,7 +54,6 @@ if (!isset($_SESSION['user']) &&
 			}
 			if(start < end){
 				var diff = (end - start)/3600000;
-				alert(diff);
 				$("#diff").text("Time Difference: " + diff + " hour(s)");
 				return true;
 			}else{
@@ -68,9 +67,6 @@ if (!isset($_SESSION['user']) &&
 			start = start.replace("T", " ") + ":00";
 			end = end.replace("T", " ") + ":00";
 			var id = $("#student_id").val();
-			alert("id: " + id);
-			//alert(start);
-			//alert(end);
 			
 			//post to php that inserts to database and echoes back message to check here
 			$.post( "session_record.php", { start:start, end:end, id:id })
@@ -140,7 +136,7 @@ if (!isset($_SESSION['user']) &&
 		<p id="diff">Time Difference: </p>
 		<p class="errors" id="errors"></p>
 	</form>
-	<button onclick="submitSession();">Debug Check Dates</button>
+	<button onclick="submitSession();" class="button">Submit Session</button>
 	<p id="response"></p>
 <?php endif; ?>
 	

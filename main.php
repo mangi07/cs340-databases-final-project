@@ -4,7 +4,7 @@ session_start();
 /*
 AUTHOR:	Benjamin R. Olson
 DATE:	May 23, 2015
-COURSE: CS 340 - Web Development, Oregon State University
+COURSE: CS 340 - Introduction to Databases, Oregon State University
 */
 
 
@@ -45,22 +45,13 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 
 
 <!-- USER LOGOUT HERE -->
-	<div onclick="window.location.href = 'logout.php'" class="button">Log Out</div>
-	<!--<div class="button"><a href="logout.php">Log Out</a></div>-->
+<div class="button"><a href="logout.php">Log Out</a></div>
 
-<!-- Check mode here, a post variable (if set and what value)
-mode: update_user, filter_tutors, set_schedule, request_tutor, accept_student 
-
-note: add financial info (and sessions), display schedule
-note: insert into availability all 0's when creating a new user, use php to display schedule as styled table
-note: add manager page to view how many students each tutor has, sessions, and financial info
--->
 
 
 <?php
 	/*refer to functions at the bottom of this page*/
 	if (isset($_POST['mode']) && $_POST['mode'] = 'update_user' ){
-		//update user function
 		update_user();
 	}
 ?>
@@ -324,7 +315,6 @@ if($_SESSION['user_type']=="student"){
 				echo "<option value='$tutor_id'>$tutor_name</option>\n";
 			}
 	echo "</select>\n
-		<input type='hidden' name='other_party_name' value='$tutor_name'></input>\n
 		<input type='submit'></input>\n
 	</form>";
 		
@@ -407,7 +397,6 @@ if($_SESSION['user_type']=="tutor"){
 				echo "<option value='$student_id'>$student_name</option>\n";
 			}
 	echo "</select>\n
-		<input type='hidden' name='other_party_name' value='$student_name'></input>\n
 		<input type='submit'></input>\n
 	</form>";
 	
@@ -415,7 +404,7 @@ if($_SESSION['user_type']=="tutor"){
 ?>
 
 <!-- VIEW AND EDIT CURRENT SCHEDULE -->
-<div class="button centered"><a href="availability.php">View And Edit Your Schedule</a></div>
+<p class="button centered"><a href="availability.php">View And Edit Your Schedule</a></p>
 
 
 <!-- VIEW PERSONAL DATA -->
@@ -597,18 +586,7 @@ echo "
 		return $arr;
 	}
 	
-	/*
-	//borrowed from user m dot amiot at otak-arts dot com: http://php.net/manual/en/mysqli-result.fetch-all.php
-	public function fetch_all($resulttype = MYSQLI_NUM)
-        {
-            if (method_exists('mysqli_result', 'fetch_all')) # Compatibility layer with PHP < 5.3
-                $res = parent::fetch_all($resulttype);
-            else
-                for ($res = array(); $tmp = $this->fetch_array($resulttype);) $res[] = $tmp;
 
-            return $res;
-        }
-	*/
 ?>
 
 	
