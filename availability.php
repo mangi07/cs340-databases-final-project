@@ -40,6 +40,57 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 					$(this).attr('class', 'self on');
 				}
 			});
+			
+			//modified from http://www.htmlgoodies.com/beyond/css/working_w_tables_using_jquery.html
+			function getSched() {
+				var data = [];
+				$(".sched").find('.self.dayrow').each(function (rowIndex, r) {
+					var timeslots = "";
+					$(this).find('.self').each(function (colIndex, c) {
+						if($(this).attr('class')=="self on"){
+							timeslots += "1";
+						}else if($(this).attr('class')=="self off"){
+							timeslots += "0";
+						}
+					});
+					data.push(timeslots);
+				});
+				return data;
+			}
+			
+			$("#edit_self").click(function(){
+				
+				//var data = {};
+				var data = getSched();
+				//debug
+				console.log(data);
+				
+				sched = JSON.stringify(data);
+				console.log(sched);
+				
+				$("#sched").attr('value',sched);;
+				
+				//var data = {"sched":sched};
+				//var data = {'test_json':[1, 'okay', 3]};
+				//console.log(data);
+				//var data = JSON.stringify(data);
+				
+				/*
+				$.ajax({
+				   url : 'availability.php',
+				   type : 'POST',
+				   contentType: 'text',
+				   dataType : 'text',
+				   cache: false,
+				   data: "test ajax",
+				   success : function(){alert('Saved');},
+				   error: function(){alert('Did not reach server');}
+				});
+				*/
+				
+			});
+			
+			
 		});
 		//add function to make day strings from self schedule 
 		//  and submit self and check post to call php insert_weekly_sched()
@@ -63,46 +114,43 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 
     include ("db.php");
 	
+	
 	//debug
-	//case: view_intersect, view_edit_self
-	if(isset($_POST['case'])){
-		if($_POST['case']=='view_intersect'){
-			//check some more posts here:
-			$other_id;
-			if(isset($_POST['id'])){
-				$other_id = $_POST['id'];
-			}else{
-				//error message
-				
-				///link to main, and then...
-				
-				die();
-			}
-			
-			$your_schedule = get_schedule("yours");
-			$other_schedule = get_schedule("other's");
-			
-			//show your schedule and the other party's schedule
-			show_sched($your_schedule, "yours");
-			show_sched($other_schedule, "other's");
-			
-			$intersect = find_sched_intersect();
-			//show schedules and intersects with show_sched() function to write below
-		}
-		if($_POST['case']=='view_edit_self'){
-			//add form here on this page to submit to this page with this case
-			//do that: edit args to functions
-			//get post from this page submitting to itself
-			insert_weekly_sched();//only if post variables for schedule are correct
-			$your_schedule = get_schedule();
-			//check variable is not empty or something
-			//show your schedule with show_sched() function to write below
-		}
-	}else{
-		//error message here
+
+
+	if(isset($_POST['sched'])){
+		//echo "Post response: ";
+		//var_dump($_POST);
+		$sched = json_decode($_POST['sched']);
+		//var_dump($sched);
+		update_weekly_sched($sched);
 	}
 	
 	
+	$your_schedule = get_schedule("yours");
+	if($your_schedule == null){
+		$sched = array();
+		for($i = 0; $i < 48; $i++){
+			//fill schedule with timeslots all off
+			$sched[] = "000000000000000000000000000000000000000000000000";
+		}
+		insert_weekly_sched($sched);
+	}
+	show_sched($your_schedule, "yours");
+	
+	if(isset($_POST['other_party_name'])){
+		$other_schedule = get_schedule("other's");
+		show_sched($other_schedule, "other's");
+		$intersect = find_sched_intersect($_SESSION['user'], $_POST['other_id']);
+		show_sched($intersect);
+	}
+
+
+	//check variable is not empty or something
+
+	
+	
+	//debug
 	/*
 	$sched = array();
 	$sched[0] = '000001111100000111110000011111000001111100000000';
@@ -116,10 +164,10 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	
 	$user_name = 'frankie';
 	$user2 = 'bobby';
-	*/
 	
-	/*
-	insert_weekly_sched($sched, $user2);
+	
+	echo "debug line 160: ";
+	insert_weekly_sched($sched);
 	*/
 	
 	/*
@@ -156,10 +204,9 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 		$bind = "s";
 	}else if($user_party == "other's"){
 		$sql .= "user_name = (select user_name from users2 where id = ?)";
-		$var = $_POST['id'];
+		$var = $_POST['other_id'];
 		$bind = "i";
 	}
-	var_dump($sql);
 	
 	global $mysqli;
 	
@@ -244,19 +291,24 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
     Pre-conditions: $days must contain an array of seven elements,
 	  where each element is a binary string representing 48 30-minute time slots
 	  in a given day.  The order of days in the array must be Sunday through Saturday.
+	  The database should not contain a weekly schedule for the current user.
 	  
 	  $user_name holds the string value of the user_name for which to insert the schedule
 	Post-conditions: The database contains a weekly schedule for that user.
   */
-  function insert_weekly_sched(&$days, $user_name){
+  function insert_weekly_sched(&$days){
     global $mysqli;
 	
-    if(!($stmt = $mysqli->prepare("insert into sched(
+	//debug
+	echo "in insert_weekly_sched: ";
+	var_dump($days);
+	
+    if(!($stmt = $mysqli->prepare("insert into availability(
 	  user_name, sun, mon, tues, wed, thurs, fri, sat) values (
 	  ?, ?, ?, ?, ?, ?, ?, ?)") )){
 	echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
 	}
-	if(!($stmt->bind_param("ssssssss",$user_name,
+	if(!($stmt->bind_param("ssssssss",$_SESSION['user'],
 	  $days[0],$days[1],$days[2],$days[3],$days[4],$days[5],$days[6]))){
 	  echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
 	}
@@ -266,10 +318,49 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	$stmt->close();
   }
   
-  /*borrowed from mcampa at gmail dot com, posted on http://php.net/manual/en/function.decbin.php*/
-  function d2b($n) {
-    return str_pad(decbin($n), 48, "0", STR_PAD_LEFT);
+  /*
+    Pre-conditions: $days must contain an array of seven elements,
+	  where each element is a binary string representing 48 30-minute time slots
+	  in a given day.  The order of days in the array must be Sunday through Saturday.
+	  The database should contain a weekly schedule for the current user.
+	  
+	  $user_name holds the string value of the user_name for which to update the schedule
+	Post-conditions: The database contains a weekly schedule for that user.
+  */
+  function update_weekly_sched(&$days){
+    global $mysqli;
+	
+	//debug
+	echo "in update_weekly_sched: ";
+	var_dump($days);
+	
+    if(!($stmt = $mysqli->prepare("update availability 
+					set sun =   ?,
+						mon =   ?,
+						tues =  ?,
+						wed =   ?,
+						thurs = ?,
+						fri =   ?,
+						sat =   ?
+						where user_name = ?") )){
+	echo "Prepare failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!($stmt->bind_param("ssssssss",
+	  $days[0],$days[1],$days[2],$days[3],$days[4],$days[5],$days[6],$_SESSION['user']))){
+	  echo "Bind failed: "  . $stmt->errno . " " . $stmt->error;
+	}
+	if(!$stmt->execute()){
+		echo "Execute failed: "  . $mysqli->connect_errno . " " . $mysqli->connect_error;
+	}
+	$stmt->close();
   }
+  
+  
+  //PROBABLY NOT USING THIS FOLLOWING FUNCTION:
+  /*borrowed from mcampa at gmail dot com, posted on http://php.net/manual/en/function.decbin.php*/
+  //function d2b($n) {
+  //  return str_pad(decbin($n), 48, "0", STR_PAD_LEFT);
+  //}
   
   /*takes 7-element schedule array and shows it to the user if none of the elements are null*/
   function show_sched($sched_arr, $whose){
@@ -288,16 +379,24 @@ if (!isset($_SESSION['user']) && !isset($_SESSION["user_type"])){
 	}
 	
 	foreach($sched_arr as $key => $str){
-		echo "<div class='dayrow'>";
+		echo "<div class='sched'>";
+		echo "<div class='$ownership dayrow'>";
 		for($i = 0; $i < strlen($str); $i++){
 			if($str[$i] == '0') echo "<div class='$ownership off'></div>";
 			if($str[$i] == '1') echo "<div class='$ownership on'></div>";
 		}
 		echo "</div>";
+		echo "</div>";
 	}
-	//add button to submit for editing
+	//button to submit changes made to the user's schedule
 	if($whose == "yours"){
+		//maybe have this be a form that jquery can manipulate
+		echo "<button id='edit_self' class='button'>Save Changes</button>";
 		
+		echo "<form action='availability.php' method='post'>\n
+				<input id='sched' type='hidden' name='sched' value=''>
+				<p><input type='submit' id='edit_self' class='button'></p>\n
+			</form>";
 	}
 	
 	

@@ -317,15 +317,14 @@ if($_SESSION['user_type']=="student"){
 	//dropdown menu to work on scheduling with a tutor
 	echo "<p>SCHEDULING WITH TUTOR HERE</p>";
 	echo "<form method='post' action='availability.php'>\n
-		<select name='id'>";
+		<select name='other_id'>";
 			foreach ($tutors as $key => $val){
 				$tutor_id = $val['id'];
 				$tutor_name = $val['fname'] . " " . $val['lname'];
 				echo "<option value='$tutor_id'>$tutor_name</option>\n";
 			}
 	echo "</select>\n
-		<input type='hidden' name='full_name' value='$tutor_name'></input>\n
-		<input type='hidden' name='case' value='view_intersect'></input>\n
+		<input type='hidden' name='other_party_name' value='$tutor_name'></input>\n
 		<input type='submit'></input>\n
 	</form>";
 		
@@ -401,15 +400,14 @@ if($_SESSION['user_type']=="tutor"){
 	//dropdown menu to work on scheduling with a student
 	echo "<p>SCHEDULING WITH STUDENT HERE</p>";
 	echo "<form method='post' action='availability.php'>\n
-		<select name='id'>";
+		<select name='other_id'>";
 			foreach ($students as $key => $val){
 				$student_id = $val['id'];
 				$student_name = $val['fname'] . " " . $val['lname'];
 				echo "<option value='$student_id'>$student_name</option>\n";
 			}
 	echo "</select>\n
-		<input type='hidden' name='full_name' value='$student_name'></input>\n
-		<input type='hidden' name='case' value='view_intersect'></input>\n
+		<input type='hidden' name='other_party_name' value='$student_name'></input>\n
 		<input type='submit'></input>\n
 	</form>";
 	
@@ -417,10 +415,7 @@ if($_SESSION['user_type']=="tutor"){
 ?>
 
 <!-- VIEW AND EDIT CURRENT SCHEDULE -->
-<form method="post" action="availability.php">
-	<input type="hidden" name="case" value="view_edit_self">
-	<p><input type="submit" value="View And Edit Your Schedule" class="button"></p>
-</form>
+<div class="button centered"><a href="availability.php">View And Edit Your Schedule</a></div>
 
 
 <!-- VIEW PERSONAL DATA -->
